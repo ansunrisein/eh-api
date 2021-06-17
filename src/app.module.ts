@@ -25,6 +25,8 @@ import { AuthService } from './auth/service';
       }),
     }),
     GraphQLModule.forRoot({
+      introspection: true,
+      playground: true,
       autoSchemaFile: true,
       cors: {
         origin: '*',
