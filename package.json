@@ -18,8 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "start:prod": "node dist/main.ts",
-    "prestart:prod": "rimraf dist && yarn install && yarn build",
+    "start:prod": "node dist/main",
+    "prestart:prod": "rimraf dist && yarn build",
     "postinstall": "yarn start prestart:prod"
   },
   "dependencies": {
