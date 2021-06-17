@@ -7,9 +7,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "node --max_old_space_size=2560 node_modules/.bin/react-scripts nest build",
+    "build": "node --max_old_space_size=2560 && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "node --max_old_space_size=2560 node_modules/.bin/react-scripts nest start",
+    "start": "node --max_old_space_size=2560 && nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
