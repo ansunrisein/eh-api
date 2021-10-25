@@ -1,6 +1,9 @@
 import Firebase from 'firebase-admin'
 import * as jwt from 'jsonwebtoken'
 import {Injectable} from '@nestjs/common'
+import {adjectives, animals, colors, starWars, uniqueNamesGenerator} from 'unique-names-generator'
+import {UserService} from '../user/service'
+import {User} from '../user/model'
 
 export type FirebaseUser = {
   uid?: string
@@ -15,7 +18,7 @@ export type FirebaseUser = {
 export class AuthService {
   private admin: Firebase.app.App
 
-  constructor() {
+  constructor(private userService: UserService) {
     this.admin = Firebase.initializeApp(
       !process.env.FIREBASE_AUTH_EMULATOR_HOST
         ? {
@@ -31,12 +34,12 @@ export class AuthService {
     )
   }
 
-  async authenticate(token: string | undefined): Promise<FirebaseUser | undefined> {
+  async authenticate(token: string | undefined): Promise<User | undefined> {
     if (!token) {
       return undefined
     }
 
-    return this.decodeToken(token)
+    return this.decodeToken(token).then(user => user && this.getOrCreateUser(user))
   }
 
   private async decodeToken(token: string): Promise<FirebaseUser | undefined> {
@@ -48,5 +51,29 @@ export class AuthService {
       .auth()
       .verifyIdToken(token, true)
       .catch(() => undefined)
+  }
+
+  private async getOrCreateUser(firebaseUser: FirebaseUser): Promise<User | undefined> {
+    const providerId = firebaseUser.uid || firebaseUser.user_id
+
+    if (!providerId) {
+      return undefined
+    }
+
+    const user = await this.userService.getUserByProviderId(providerId)
+
+    if (user) {
+      return user
+    }
+
+    return this.userService.create({
+      providerId: providerId,
+      nickname: uniqueNamesGenerator({
+        dictionaries: [colors, starWars, animals, adjectives],
+        length: 1,
+      }),
+      name: firebaseUser.name,
+      avatar: firebaseUser.picture,
+    })
   }
 }
