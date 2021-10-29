@@ -2,17 +2,22 @@ import {Args, ID, Mutation, Query, Resolver} from '@nestjs/graphql'
 import {UseGuards} from '@nestjs/common'
 import {ObjectId} from 'mongodb'
 import {ParseObjectID} from '../shared/pipes'
+import {AuthGuard} from '../auth/AuthGuard'
+import {InjectUser} from '../auth/@InjectUser'
+import {User} from '../user/model'
 import {CreateEvent, Event, UpdateEvent} from './model'
 import {EventService} from './service'
-import {AuthGuard} from '../auth/AuthGuard'
 
 @Resolver(() => Event)
 export class EventResolver {
   constructor(private eventService: EventService) {}
 
   @Mutation(() => Event, {nullable: true})
-  createEvent(@Args(ParseObjectID.for('userId')) event: CreateEvent): Promise<Event | undefined> {
-    return this.eventService.createEvent(event)
+  createEvent(
+    @InjectUser() user: User | undefined,
+    @Args(ParseObjectID.for('userId')) event: CreateEvent,
+  ): Promise<Event | undefined> {
+    return this.eventService.createEvent(user, event)
   }
 
   @Query(() => Event, {nullable: true})

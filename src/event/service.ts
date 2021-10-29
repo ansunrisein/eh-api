@@ -3,6 +3,7 @@ import {getRepositoryToken} from '@nestjs/typeorm'
 import {forwardRef, Inject, Injectable} from '@nestjs/common'
 import {CreateEvent, Event, UpdateEvent} from './model'
 import {ObjectId} from 'mongodb'
+import {User} from '../user/model'
 
 @Injectable()
 export class EventService {
@@ -11,8 +12,8 @@ export class EventService {
     private eventRepository: MongoRepository<Event>,
   ) {}
 
-  async createEvent(event: CreateEvent): Promise<Event | undefined> {
-    return this.eventRepository.save(event)
+  async createEvent(user: User, event: CreateEvent): Promise<Event | undefined> {
+    return this.eventRepository.save({...event, userId: user._id})
   }
 
   async getById(_id: ObjectId): Promise<Event | undefined> {
