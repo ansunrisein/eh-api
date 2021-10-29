@@ -19,6 +19,10 @@ export class EventService {
     return this.eventRepository.findOne({_id})
   }
 
+  async getEventsByBoardId(boardId: ObjectId): Promise<Event[]> {
+    return this.eventRepository.find({boardId})
+  }
+
   async removeEvent(_id: ObjectId): Promise<Event | undefined> {
     const event = await this.eventRepository.findOne({_id})
     await this.eventRepository.deleteOne({_id})

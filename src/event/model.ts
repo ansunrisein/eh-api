@@ -13,6 +13,9 @@ export class Event extends BaseEntity {
   @Column()
   userId!: ObjectId
 
+  @Column()
+  boardId!: ObjectId
+
   @Field(() => String, {nullable: true})
   @Column()
   title?: string
@@ -23,6 +26,9 @@ export class Event extends BaseEntity {
 
 @ArgsType()
 export class CreateEvent extends BaseEntity {
+  @Column()
+  boardId!: ObjectId
+
   @Field(() => String, {nullable: true})
   @Column()
   title?: string
