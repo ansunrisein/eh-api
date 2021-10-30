@@ -3,11 +3,11 @@ import {Module} from '@nestjs/common'
 import {TypeOrmModule} from '@nestjs/typeorm'
 import {GraphQLModule} from '@nestjs/graphql'
 import {ConfigModule} from '@nestjs/config'
-
 import {AuthGlobalGuard} from './auth/AuthGlobalGuard'
 import {AuthService} from './auth/service'
-
 import {UserModule} from './user/module'
+import {EventModule} from './event/module'
+import {BoardModule} from './board/module'
 
 @Module({
   imports: [
@@ -31,6 +31,8 @@ import {UserModule} from './user/module'
       fieldResolverEnhancers: ['guards', 'interceptors'],
     }),
     UserModule,
+    EventModule,
+    BoardModule,
   ],
   providers: [
     {
