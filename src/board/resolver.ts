@@ -15,11 +15,13 @@ export class BoardResolver {
   constructor(private boardService: BoardService) {}
 
   @ResolveField('events', () => [Event])
+  @UseGuards(AuthGuard)
   events(@Parent() board: Board) {
     return this.boardService.events(board._id)
   }
 
   @Query(() => Board)
+  @UseGuards(AuthGuard)
   board(@Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId): Promise<Board | undefined> {
     return this.boardService.board(_id)
   }

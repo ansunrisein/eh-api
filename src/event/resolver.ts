@@ -13,6 +13,7 @@ export class EventResolver {
   constructor(private eventService: EventService) {}
 
   @Mutation(() => Event, {nullable: true})
+  @UseGuards(AuthGuard)
   createEvent(
     @InjectUser() user: User | undefined,
     @Args(ParseObjectID.for('boardId')) event: CreateEvent,
@@ -21,6 +22,7 @@ export class EventResolver {
   }
 
   @Query(() => Event, {nullable: true})
+  @UseGuards(AuthGuard)
   event(@Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId): Promise<Event | undefined> {
     return this.eventService.getById(_id)
   }
@@ -34,6 +36,7 @@ export class EventResolver {
   }
 
   @Mutation(() => Event, {nullable: true})
+  @UseGuards(AuthGuard)
   updateEvent(@Args(ParseObjectID.for('_id')) event: UpdateEvent): Promise<Event | undefined> {
     return this.eventService.updateEvent(event)
   }
