@@ -3,13 +3,12 @@ import {ArgsType, Field, ID, ObjectType} from '@nestjs/graphql'
 import {ObjectId} from 'mongodb'
 
 @ObjectType()
-@Entity()
+@Entity({name: 'events'})
 export class Event extends BaseEntity {
   @Field(() => ID)
   @ObjectIdColumn()
   _id!: ObjectId
 
-  @Field(() => ID)
   @Column()
   userId!: ObjectId
 
@@ -20,6 +19,7 @@ export class Event extends BaseEntity {
   @Column()
   title?: string
 
+  @Field(() => String)
   @Column()
   content!: string
 }
@@ -27,6 +27,7 @@ export class Event extends BaseEntity {
 @ArgsType()
 export class CreateEvent extends BaseEntity {
   @Column()
+  @Field(() => ID)
   boardId!: ObjectId
 
   @Field(() => String, {nullable: true})
@@ -34,6 +35,7 @@ export class CreateEvent extends BaseEntity {
   title?: string
 
   @Column()
+  @Field(() => String)
   content!: string
 }
 
@@ -48,5 +50,6 @@ export class UpdateEvent extends BaseEntity {
   title?: string
 
   @Column()
+  @Field(() => String)
   content!: string
 }
