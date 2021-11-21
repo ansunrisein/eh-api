@@ -15,7 +15,7 @@ export class EventResolver {
   @Mutation(() => Event, {nullable: true})
   createEvent(
     @InjectUser() user: User | undefined,
-    @Args(ParseObjectID.for('userId')) event: CreateEvent,
+    @Args(ParseObjectID.for('boardId')) event: CreateEvent,
   ): Promise<Event | undefined> {
     return this.eventService.createEvent(user, event)
   }
