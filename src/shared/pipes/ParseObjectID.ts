@@ -26,8 +26,8 @@ export class ParseObjectID implements PipeTransform {
   }
 
   static for(fields?: string[] | string) {
-    return Object.assign({}, new ParseObjectID(), {
-      fields: Array.isArray(fields) ? fields : [fields],
-    })
+    const pipe = new ParseObjectID()
+    pipe.fields = Array.isArray(fields) ? fields : [fields]
+    return pipe
   }
 }
