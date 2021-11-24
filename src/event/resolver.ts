@@ -7,6 +7,7 @@ import {InjectUser} from '../auth/@InjectUser'
 import {User} from '../user/model'
 import {CreateEvent, Event, UpdateEvent} from './model'
 import {EventService} from './service'
+import {CanGetEvent, CanUpdateEvent} from './guards'
 
 @Resolver(() => Event)
 export class EventResolver {
@@ -22,13 +23,13 @@ export class EventResolver {
   }
 
   @Query(() => Event, {nullable: true})
-  @UseGuards(AuthGuard)
+  @UseGuards(CanGetEvent)
   event(@Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId): Promise<Event | undefined> {
     return this.eventService.getById(_id)
   }
 
   @Mutation(() => Event, {nullable: true})
-  @UseGuards(AuthGuard)
+  @UseGuards(CanUpdateEvent)
   removeEvent(
     @Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId,
   ): Promise<Event | undefined> {
@@ -36,7 +37,7 @@ export class EventResolver {
   }
 
   @Mutation(() => Event, {nullable: true})
-  @UseGuards(AuthGuard)
+  @UseGuards(CanUpdateEvent)
   updateEvent(@Args(ParseObjectID.for('_id')) event: UpdateEvent): Promise<Event | undefined> {
     return this.eventService.updateEvent(event)
   }
