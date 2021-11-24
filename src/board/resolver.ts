@@ -6,28 +6,32 @@ import {InjectUser} from '../auth/@InjectUser'
 import {User} from '../user/model'
 import {ParseObjectID} from '../shared/pipes'
 import {Event} from '../event/model'
-import {CanUpdateBoard} from './guards'
+import {CanGetBoard, CanUpdateBoard} from './guards'
 import {BoardService} from './service'
 import {Board, CreateBoard, UpdateBoard} from './model'
+import {UserService} from '../user/service'
 
 @Resolver(() => Board)
 export class BoardResolver {
-  constructor(private boardService: BoardService) {}
+  constructor(private boardService: BoardService, private userService: UserService) {}
 
   @ResolveField('events', () => [Event])
-  @UseGuards(AuthGuard)
   events(@Parent() board: Board) {
     return this.boardService.events(board._id)
   }
 
+  @ResolveField('user', () => User)
+  user(@Parent() board: Board) {
+    return this.userService.getUserById(board.userId)
+  }
+
   @Query(() => Board)
-  @UseGuards(AuthGuard)
+  @UseGuards(CanGetBoard)
   board(@Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId): Promise<Board | undefined> {
     return this.boardService.board(_id)
   }
 
   @Query(() => [Board])
-  @UseGuards(AuthGuard)
   async dashboard(@InjectUser() user: User): Promise<Board[] | undefined> {
     return await this.boardService.dashboard(user)
   }
@@ -39,7 +43,7 @@ export class BoardResolver {
   }
 
   @Mutation(() => Board)
-  @UseGuards(AuthGuard)
+  @UseGuards(CanUpdateBoard)
   removeBoard(
     @InjectUser() user: User,
     @Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId,

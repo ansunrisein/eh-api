@@ -21,6 +21,10 @@ export class Board extends BaseEntity {
   @Column()
   title!: string
 
+  @Field(() => Boolean)
+  @Column()
+  isPrivate!: boolean
+
   @Field(() => [Event])
   @Column()
   events!: Event[]
@@ -30,6 +34,9 @@ export class Board extends BaseEntity {
 export class CreateBoard {
   @Field(() => String)
   title!: string
+
+  @Field(() => Boolean)
+  isPrivate!: boolean
 }
 
 @ArgsType()
@@ -39,4 +46,7 @@ export class UpdateBoard extends CreateBoard {
 
   @Field(() => String)
   title!: string
+
+  @Field(() => Boolean)
+  isPrivate!: boolean
 }
