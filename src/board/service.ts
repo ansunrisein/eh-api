@@ -19,7 +19,30 @@ export class BoardService {
     return this.boardRepository.findOne({_id})
   }
 
-  async dashboard(user: User): Promise<Board[] | undefined> {
+  async dashboard(user: User | undefined): Promise<Board[] | undefined> {
+    if (!user) {
+      return this.boardRepository
+        .aggregateEntity([
+          {
+            $match: {isPrivate: false},
+          },
+          {
+            $lookup: {
+              from: 'events',
+              localField: '_id',
+              foreignField: 'boardId',
+              as: 'events',
+            },
+          },
+          {
+            $match: {
+              'events.0': {$exists: true},
+            },
+          },
+        ])
+        .toArray()
+    }
+
     return this.boardRepository.find({userId: user._id})
   }
 

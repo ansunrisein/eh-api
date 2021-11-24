@@ -32,7 +32,7 @@ export class BoardResolver {
   }
 
   @Query(() => [Board])
-  async dashboard(@InjectUser() user: User): Promise<Board[] | undefined> {
+  async dashboard(@InjectUser() user: User | undefined): Promise<Board[] | undefined> {
     return await this.boardService.dashboard(user)
   }
 
