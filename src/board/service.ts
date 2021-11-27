@@ -63,11 +63,8 @@ export class BoardService {
     })
   }
 
-  async updateBoard(user: User, board: UpdateBoard): Promise<Board | undefined> {
-    const oldBoard = await this.boardRepository.findOne({
-      _id: board._id,
-      userId: user._id,
-    })
+  async updateBoard(board: UpdateBoard): Promise<Board | undefined> {
+    const oldBoard = await this.boardRepository.findOne({_id: board._id})
     await this.boardRepository.update({_id: board._id}, board)
     return Board.merge(oldBoard, board)
   }

@@ -66,10 +66,9 @@ export class BoardResolver {
     ]),
   )
   updateBoard(
-    @InjectUser() user: User,
     @Args(ParseObjectID.for(['_id'])) board: UpdateBoard,
     @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Board | undefined> {
-    return this.boardService.updateBoard(user, board)
+    return this.boardService.updateBoard(board)
   }
 }
