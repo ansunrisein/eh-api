@@ -8,6 +8,7 @@ import {AuthService} from './auth/service'
 import {UserModule} from './user/module'
 import {EventModule} from './event/module'
 import {BoardModule} from './board/module'
+import {BoardLinkModule} from './board-link/module'
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import {BoardModule} from './board/module'
     UserModule,
     EventModule,
     BoardModule,
+    BoardLinkModule,
   ],
   providers: [
     {
