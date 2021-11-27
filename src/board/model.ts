@@ -1,5 +1,5 @@
 import {BaseEntity, Column, Entity, ObjectIdColumn} from 'typeorm'
-import {Field, ID, ObjectType} from '@nestjs/graphql'
+import {ArgsType, Field, ID, ObjectType} from '@nestjs/graphql'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
 import {Event} from '../event/model'

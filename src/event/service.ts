@@ -7,10 +7,8 @@ import {User} from '../user/model'
 
 @Injectable()
 export class EventService {
-  constructor(
-    @Inject(forwardRef(() => getRepositoryToken(Event)))
-    private eventRepository: MongoRepository<Event>,
-  ) {}
+  @Inject(forwardRef(() => getRepositoryToken(Event)))
+  private eventRepository: MongoRepository<Event>
 
   async getById(_id: ObjectId): Promise<Event | undefined> {
     return this.eventRepository.findOne({_id})

@@ -1,5 +1,5 @@
 import {Args, ID, Mutation, Query, Resolver} from '@nestjs/graphql'
-import {UseGuards} from '@nestjs/common'
+import {forwardRef, Inject, UseGuards} from '@nestjs/common'
 import {ObjectId} from 'mongodb'
 import {ParseObjectID} from '../shared/pipes'
 import {AuthGuard} from '../auth/AuthGuard'
@@ -11,7 +11,8 @@ import {CanGetEvent, CanUpdateEvent} from './guards'
 
 @Resolver(() => Event)
 export class EventResolver {
-  constructor(private eventService: EventService) {}
+  @Inject(forwardRef(() => EventService))
+  private eventService!: EventService
 
   @Mutation(() => Event, {nullable: true})
   @UseGuards(AuthGuard)

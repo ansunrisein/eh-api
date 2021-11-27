@@ -1,5 +1,5 @@
 import {Args, ID, Mutation, Parent, Query, ResolveField, Resolver} from '@nestjs/graphql'
-import {UseGuards} from '@nestjs/common'
+import {forwardRef, Inject, UseGuards} from '@nestjs/common'
 import {ObjectId} from 'mongodb'
 import {Board} from '../board/model'
 import {BoardService} from '../board/service'
@@ -11,7 +11,11 @@ import {BoardLinkPermission} from './permissions'
 
 @Resolver(() => BoardLink)
 export class BoardLinkResolver {
-  constructor(private boardService: BoardService, private boardLinkService: BoardLinkService) {}
+  @Inject(forwardRef(() => BoardLinkService))
+  public boardLinkService!: BoardLinkService
+
+  @Inject(forwardRef(() => BoardService))
+  public boardService!: BoardService
 
   @ResolveField('board', () => Board)
   board(@Parent() boardLink: BoardLink) {

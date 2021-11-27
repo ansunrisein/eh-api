@@ -7,10 +7,8 @@ import {randomUUID} from 'crypto'
 
 @Injectable()
 export class BoardLinkService {
-  constructor(
-    @Inject(forwardRef(() => getRepositoryToken(BoardLink)))
-    private boardLinkRepository: MongoRepository<BoardLink>,
-  ) {}
+  @Inject(forwardRef(() => getRepositoryToken(BoardLink)))
+  private boardLinkRepository: MongoRepository<BoardLink>
 
   static extractBoardLinkId(context: ExecutionContext): ObjectId | undefined {
     const args = context.getArgByIndex(1)

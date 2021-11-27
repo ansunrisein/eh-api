@@ -9,11 +9,11 @@ import {Board, CreateBoard, UpdateBoard} from './model'
 
 @Injectable()
 export class BoardService {
-  constructor(
-    @Inject(forwardRef(() => getRepositoryToken(Board)))
-    private boardRepository: MongoRepository<Board>,
-    private eventService: EventService,
-  ) {}
+  @Inject(forwardRef(() => getRepositoryToken(Board)))
+  private boardRepository: MongoRepository<Board>
+
+  @Inject(forwardRef(() => EventService))
+  private eventService!: EventService
 
   static extractBoardId(context: ExecutionContext): ObjectId | undefined {
     const args = context.getArgByIndex(1)

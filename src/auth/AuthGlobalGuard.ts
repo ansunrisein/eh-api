@@ -3,10 +3,8 @@ import {AuthService} from './service'
 
 @Injectable()
 export class AuthGlobalGuard implements CanActivate {
-  constructor(
-    @Inject(AuthService)
-    private authService: AuthService,
-  ) {}
+  @Inject(AuthService)
+  private authService: AuthService
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const graphqlContext = context.getArgByIndex(2)

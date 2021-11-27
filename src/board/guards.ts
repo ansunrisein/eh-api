@@ -1,4 +1,4 @@
-import {CanActivate, ExecutionContext, Injectable, mixin} from '@nestjs/common'
+import {CanActivate, ExecutionContext, forwardRef, Inject, Injectable, mixin} from '@nestjs/common'
 import {ObjectId} from 'mongodb'
 import {BoardService} from './service'
 import {BoardLinkService} from '../board-link/service'
@@ -9,7 +9,11 @@ import {AuthService} from '../auth/service'
 export class BoardGuard implements CanActivate {
   permissions: BoardPermission[] = []
 
-  constructor(private boardService: BoardService, private boardLinkService: BoardLinkService) {}
+  @Inject(forwardRef(() => BoardService))
+  private boardService!: BoardService
+
+  @Inject(forwardRef(() => BoardLinkService))
+  private boardLinkService!: BoardLinkService
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const userId = AuthService.extractUserId(context)

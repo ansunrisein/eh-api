@@ -1,4 +1,4 @@
-import {CanActivate, ExecutionContext, Injectable} from '@nestjs/common'
+import {CanActivate, ExecutionContext, forwardRef, Inject, Injectable} from '@nestjs/common'
 import {ObjectId} from 'mongodb'
 import {EventService} from './service'
 import {BoardService} from '../board/service'
@@ -17,9 +17,11 @@ export abstract class EventGuard {
 
 @Injectable()
 export class CanUpdateEvent extends EventGuard implements CanActivate {
-  constructor(private eventService: EventService, private boardService: BoardService) {
-    super()
-  }
+  @Inject(forwardRef(() => EventService))
+  private eventService: EventService
+
+  @Inject(forwardRef(() => BoardService))
+  private boardService: BoardService
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const userId = CanUpdateEvent.extractUserId(context)
@@ -50,9 +52,11 @@ export class CanUpdateEvent extends EventGuard implements CanActivate {
 
 @Injectable()
 export class CanGetEvent extends EventGuard implements CanActivate {
-  constructor(private eventService: EventService, private boardService: BoardService) {
-    super()
-  }
+  @Inject(forwardRef(() => EventService))
+  public eventService!: EventService
+
+  @Inject(forwardRef(() => BoardService))
+  public boardService!: BoardService
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const userId = CanUpdateEvent.extractUserId(context)
