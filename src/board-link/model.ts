@@ -4,9 +4,10 @@ import {ArgsType, Field, ID, ObjectType, registerEnumType} from '@nestjs/graphql
 import {Board} from '../board/model'
 import {BoardPermission} from '../board/permissions'
 import {BoardLinkPermission} from './permissions'
+import {EventPermission} from '../event/permissions'
 
-export type Permission = BoardLinkPermission | BoardPermission
-export const Permission = {...BoardLinkPermission, ...BoardPermission}
+export type Permission = BoardLinkPermission | BoardPermission | EventPermission
+export const Permission = {...BoardLinkPermission, ...BoardPermission, ...EventPermission}
 
 registerEnumType(Permission, {name: 'Permission'})
 

@@ -5,11 +5,17 @@ import {BoardModule} from '../board/module'
 import {EventResolver} from './resolver'
 import {EventService} from './service'
 import {Event} from './model'
-import {CanGetEvent, CanUpdateEvent} from './guards'
+import {EventGuard} from './guards'
+import {BoardLinkModule} from '../board-link/module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Event]), forwardRef(() => BoardModule), UserModule],
-  providers: [EventResolver, EventService, CanUpdateEvent, CanGetEvent],
+  imports: [
+    TypeOrmModule.forFeature([Event]),
+    forwardRef(() => BoardModule),
+    forwardRef(() => BoardLinkModule),
+    UserModule,
+  ],
+  providers: [EventResolver, EventService, EventGuard],
   exports: [EventService],
 })
 export class EventModule {}

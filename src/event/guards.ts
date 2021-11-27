@@ -1,90 +1,86 @@
-import {CanActivate, ExecutionContext, forwardRef, Inject, Injectable} from '@nestjs/common'
+import {CanActivate, ExecutionContext, forwardRef, Inject, Injectable, mixin} from '@nestjs/common'
 import {ObjectId} from 'mongodb'
-import {EventService} from './service'
 import {BoardService} from '../board/service'
-
-export abstract class EventGuard {
-  protected static extractUserId(context: ExecutionContext): ObjectId | undefined {
-    return context.getArgByIndex(2).user?._id
-  }
-
-  protected static extractEventId(context: ExecutionContext): ObjectId | undefined {
-    const args = context.getArgByIndex(1)
-    const id = args.eventId || args.event?._id || args._id
-    return id && new ObjectId(id)
-  }
-}
+import {BoardLinkService} from '../board-link/service'
+import {AuthService} from '../auth/service'
+import {EventService} from './service'
+import {EventPermission} from './permissions'
 
 @Injectable()
-export class CanUpdateEvent extends EventGuard implements CanActivate {
-  @Inject(forwardRef(() => EventService))
-  private eventService: EventService
+export class EventGuard implements CanActivate {
+  permissions: EventPermission[] = []
 
   @Inject(forwardRef(() => BoardService))
-  private boardService: BoardService
+  private boardService!: BoardService
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const userId = CanUpdateEvent.extractUserId(context)
-    const eventId = CanUpdateEvent.extractEventId(context)
+  @Inject(forwardRef(() => BoardLinkService))
+  private boardLinkService!: BoardLinkService
 
-    return this.canUpdateEvent(userId, eventId)
-  }
-
-  public async canUpdateEvent(
-    userId: ObjectId | undefined,
-    eventId: ObjectId | undefined,
-  ): Promise<boolean> {
-    if (!eventId) {
-      return false
-    }
-
-    const event = await this.eventService.getById(eventId)
-
-    if (!event) {
-      return false
-    }
-
-    const board = await this.boardService.board(event.boardId)
-
-    return board.userId.equals(userId)
-  }
-}
-
-@Injectable()
-export class CanGetEvent extends EventGuard implements CanActivate {
   @Inject(forwardRef(() => EventService))
-  public eventService!: EventService
-
-  @Inject(forwardRef(() => BoardService))
-  public boardService!: BoardService
+  private eventService!: EventService
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const userId = CanUpdateEvent.extractUserId(context)
-    const eventId = CanUpdateEvent.extractEventId(context)
+    const userId = AuthService.extractUserId(context)
+    const eventId = EventService.extractEventId(context)
+    const boardId = BoardService.extractBoardId(context)
+    const linkToken = BoardLinkService.extractLinkToken(context)
 
-    return this.canGetEvent(userId, eventId)
+    return boardId
+      ? this.hasPermissionsForBoard(boardId, userId, linkToken)
+      : this.hasPermissionsForEvent(eventId, userId, linkToken)
   }
 
-  public async canGetEvent(
-    userId: ObjectId | undefined,
-    eventId: ObjectId | undefined,
-  ): Promise<boolean> {
-    if (!eventId) {
+  public async hasPermissionsForBoard(boardId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+    if (!boardId) {
       return false
     }
 
-    const event = await this.eventService.getById(eventId)
+    const board = await this.boardService.board(boardId)
 
-    if (!event) {
+    if (!board) {
       return false
     }
 
-    const board = await this.boardService.board(event.boardId)
-
-    if (!board.isPrivate) {
+    if (board.userId.equals(userId)) {
       return true
     }
 
-    return board.userId.equals(userId)
+    if (!board.isPrivate && this.permissions.every(perm => perm === EventPermission.VIEW_EVENT)) {
+      return true
+    }
+
+    if (!linkToken) {
+      return false
+    }
+
+    const link = await this.boardLinkService.getBoardLinkByLink(linkToken)
+
+    if (!link) {
+      return false
+    }
+
+    return this.permissions.every(perm => link.permissions.includes(perm))
+  }
+
+  public async hasPermissionsForEvent(eventId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+    if (!eventId) {
+      return false
+    }
+
+    const event = await this.eventService.getById(eventId)
+
+    if (!event) {
+      return false
+    }
+
+    return this.hasPermissionsForBoard(event.boardId, userId, linkToken)
+  }
+
+  static for(permissions: EventPermission | EventPermission[]) {
+    return mixin(
+      class extends EventGuard {
+        permissions: EventPermission[] = Array.isArray(permissions) ? permissions : [permissions]
+      },
+    )
   }
 }

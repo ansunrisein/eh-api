@@ -1,0 +1,6 @@
+export enum EventPermission {
+  VIEW_EVENT = 'VIEW_EVENT',
+  CREATE_EVENT = 'CREATE_EVENT',
+  UPDATE_EVENT = 'UPDATE_EVENT',
+  REMOVE_EVENT = 'REMOVE_EVENT',
+}

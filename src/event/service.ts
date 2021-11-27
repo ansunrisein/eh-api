@@ -1,6 +1,6 @@
 import {MongoRepository} from 'typeorm'
 import {getRepositoryToken} from '@nestjs/typeorm'
-import {forwardRef, Inject, Injectable} from '@nestjs/common'
+import {ExecutionContext, forwardRef, Inject, Injectable} from '@nestjs/common'
 import {CreateEvent, Event, UpdateEvent} from './model'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
@@ -9,6 +9,12 @@ import {User} from '../user/model'
 export class EventService {
   @Inject(forwardRef(() => getRepositoryToken(Event)))
   private eventRepository: MongoRepository<Event>
+
+  static extractEventId(context: ExecutionContext): ObjectId | undefined {
+    const args = context.getArgByIndex(1)
+    const id = args.eventId || args.event?._id || args._id
+    return id && new ObjectId(id)
+  }
 
   async getById(_id: ObjectId): Promise<Event | undefined> {
     return this.eventRepository.findOne({_id})
