@@ -1,9 +1,10 @@
 import Firebase from 'firebase-admin'
 import * as jwt from 'jsonwebtoken'
-import {Injectable} from '@nestjs/common'
+import {ExecutionContext, Injectable} from '@nestjs/common'
 import {adjectives, animals, colors, starWars, uniqueNamesGenerator} from 'unique-names-generator'
 import {UserService} from '../user/service'
 import {User} from '../user/model'
+import {ObjectId} from 'mongodb'
 
 export type FirebaseUser = {
   uid?: string
@@ -32,6 +33,10 @@ export class AuthService {
             projectId: process.env.FIREBASE_PROJECT_ID,
           },
     )
+  }
+
+  static extractUserId(context: ExecutionContext): ObjectId | undefined {
+    return context.getArgByIndex(2).user?._id
   }
 
   async authenticate(token: string | undefined): Promise<User | undefined> {

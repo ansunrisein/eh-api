@@ -1,4 +1,4 @@
-import {forwardRef, Inject, Injectable} from '@nestjs/common'
+import {ExecutionContext, forwardRef, Inject, Injectable} from '@nestjs/common'
 import {MongoRepository} from 'typeorm'
 import {getRepositoryToken} from '@nestjs/typeorm'
 import {ObjectId} from 'mongodb'
@@ -14,6 +14,12 @@ export class BoardService {
     private boardRepository: MongoRepository<Board>,
     private eventService: EventService,
   ) {}
+
+  static extractBoardId(context: ExecutionContext): ObjectId | undefined {
+    const args = context.getArgByIndex(1)
+    const id = args.boardId || args.board?._id || args._id
+    return id && new ObjectId(id)
+  }
 
   async board(_id: ObjectId): Promise<Board | undefined> {
     return this.boardRepository.findOne({_id})

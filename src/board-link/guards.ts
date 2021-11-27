@@ -3,29 +3,7 @@ import {ObjectId} from 'mongodb'
 import {BoardLinkService} from './service'
 import {BoardService} from '../board/service'
 import {BoardLinkPermission} from './permissions'
-
-export abstract class BoardLinkGuardUtils {
-  static extractUserId(context: ExecutionContext): ObjectId | undefined {
-    return context.getArgByIndex(2).user?._id
-  }
-
-  static extractBoardLinkId(context: ExecutionContext): ObjectId | undefined {
-    const args = context.getArgByIndex(1)
-    const id = args.boardLinkId || args.boardLink?._id || args._id
-    return id && new ObjectId(id)
-  }
-
-  static extractLinkToken(context: ExecutionContext): string | undefined {
-    const args = context.getArgByIndex(1)
-    return args.linkToken || args.boardLink?.token
-  }
-
-  static extractBoardId(context: ExecutionContext): ObjectId | undefined {
-    const args = context.getArgByIndex(1)
-    const id = args.boardId || args.board?._id || args._id
-    return id && new ObjectId(id)
-  }
-}
+import {AuthService} from '../auth/service'
 
 @Injectable()
 export class BoardLinkGuard implements CanActivate {
@@ -34,10 +12,10 @@ export class BoardLinkGuard implements CanActivate {
   constructor(public boardLinkService: BoardLinkService, public boardService: BoardService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const userId = BoardLinkGuardUtils.extractUserId(context)
-    const boardId = BoardLinkGuardUtils.extractBoardId(context)
-    const boardLinkId = BoardLinkGuardUtils.extractBoardLinkId(context)
-    const linkToken = BoardLinkGuardUtils.extractLinkToken(context)
+    const userId = AuthService.extractUserId(context)
+    const boardId = BoardService.extractBoardId(context)
+    const boardLinkId = BoardLinkService.extractBoardLinkId(context)
+    const linkToken = BoardLinkService.extractLinkToken(context)
 
     return boardLinkId
       ? this.hasPermissionsForLink(userId, boardLinkId, linkToken)

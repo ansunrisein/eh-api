@@ -1,4 +1,4 @@
-import {forwardRef, Inject, Injectable} from '@nestjs/common'
+import {ExecutionContext, forwardRef, Inject, Injectable} from '@nestjs/common'
 import {getRepositoryToken} from '@nestjs/typeorm'
 import {MongoRepository} from 'typeorm'
 import {ObjectId} from 'mongodb'
@@ -11,6 +11,17 @@ export class BoardLinkService {
     @Inject(forwardRef(() => getRepositoryToken(BoardLink)))
     private boardLinkRepository: MongoRepository<BoardLink>,
   ) {}
+
+  static extractBoardLinkId(context: ExecutionContext): ObjectId | undefined {
+    const args = context.getArgByIndex(1)
+    const id = args.boardLinkId || args.boardLink?._id || args._id
+    return id && new ObjectId(id)
+  }
+
+  static extractLinkToken(context: ExecutionContext): string | undefined {
+    const args = context.getArgByIndex(1)
+    return args.linkToken || args.boardLink?.token
+  }
 
   async getBoardLinksByBoardId(boardId: ObjectId): Promise<BoardLink[]> {
     return this.boardLinkRepository.find({boardId})

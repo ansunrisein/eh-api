@@ -3,23 +3,7 @@ import {ObjectId} from 'mongodb'
 import {BoardService} from './service'
 import {BoardLinkService} from '../board-link/service'
 import {BoardPermission} from './permissions'
-
-export class BoardGuardUtils {
-  static extractUserId(context: ExecutionContext): ObjectId | undefined {
-    return context.getArgByIndex(2).user?._id
-  }
-
-  static extractBoardId(context: ExecutionContext): ObjectId | undefined {
-    const args = context.getArgByIndex(1)
-    const id = args.boardId || args.board?._id || args._id
-    return id && new ObjectId(id)
-  }
-
-  static extractLinkToken(context: ExecutionContext): string | undefined {
-    const args = context.getArgByIndex(1)
-    return args.linkToken || args.boardLink?.token
-  }
-}
+import {AuthService} from '../auth/service'
 
 @Injectable()
 export class BoardGuard implements CanActivate {
@@ -28,9 +12,9 @@ export class BoardGuard implements CanActivate {
   constructor(private boardService: BoardService, private boardLinkService: BoardLinkService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const userId = BoardGuardUtils.extractUserId(context)
-    const boardId = BoardGuardUtils.extractBoardId(context)
-    const linkToken = BoardGuardUtils.extractLinkToken(context)
+    const userId = AuthService.extractUserId(context)
+    const boardId = BoardService.extractBoardId(context)
+    const linkToken = BoardLinkService.extractLinkToken(context)
 
     return this.hasPermissions(boardId, userId, linkToken)
   }
