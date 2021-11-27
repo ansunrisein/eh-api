@@ -1,15 +1,15 @@
 import {Args, ID, Mutation, Parent, Query, ResolveField, Resolver} from '@nestjs/graphql'
 import {UseGuards} from '@nestjs/common'
 import {ObjectId} from 'mongodb'
-import {AuthGuard} from '../auth/AuthGuard'
 import {InjectUser} from '../auth/@InjectUser'
 import {User} from '../user/model'
 import {ParseObjectID} from '../shared/pipes'
 import {Event} from '../event/model'
-import {CanGetBoard, CanUpdateBoard} from './guards'
 import {BoardService} from './service'
 import {Board, CreateBoard, UpdateBoard} from './model'
 import {UserService} from '../user/service'
+import {BoardGuard} from './guards'
+import {BoardPermission} from './permissions'
 
 @Resolver(() => Board)
 export class BoardResolver {
@@ -26,8 +26,11 @@ export class BoardResolver {
   }
 
   @Query(() => Board)
-  @UseGuards(CanGetBoard)
-  board(@Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId): Promise<Board | undefined> {
+  @UseGuards(BoardGuard.for(BoardPermission.VIEW_BOARD))
+  board(
+    @Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId,
+    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
+  ): Promise<Board | undefined> {
     return this.boardService.board(_id)
   }
 
@@ -37,25 +40,35 @@ export class BoardResolver {
   }
 
   @Mutation(() => Board)
-  @UseGuards(AuthGuard)
-  createBoard(@InjectUser() user: User, @Args() board: CreateBoard): Promise<Board | undefined> {
+  @UseGuards(BoardGuard.for(BoardPermission.CREATE_BOARD))
+  createBoard(
+    @InjectUser() user: User,
+    @Args() board: CreateBoard,
+    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
+  ): Promise<Board | undefined> {
     return this.boardService.createBoard(user, board)
   }
 
   @Mutation(() => Board)
-  @UseGuards(CanUpdateBoard)
+  @UseGuards(BoardGuard.for(BoardPermission.REMOVE_BOARD))
   removeBoard(
-    @InjectUser() user: User,
     @Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId,
+    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Board | undefined> {
-    return this.boardService.removeBoard(user, _id)
+    return this.boardService.removeBoard(_id)
   }
 
   @Mutation(() => Board)
-  @UseGuards(CanUpdateBoard)
+  @UseGuards(
+    BoardGuard.for([
+      BoardPermission.UPDATE_BOARD_DESCRIPTION,
+      BoardPermission.UPDATE_BOARD_VISIBILITY,
+    ]),
+  )
   updateBoard(
     @InjectUser() user: User,
     @Args(ParseObjectID.for(['_id'])) board: UpdateBoard,
+    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Board | undefined> {
     return this.boardService.updateBoard(user, board)
   }

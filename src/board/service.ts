@@ -57,13 +57,6 @@ export class BoardService {
     })
   }
 
-  // TODO: replace with soft deleting
-  async removeBoard(user: User, _id: ObjectId): Promise<Board | undefined> {
-    const board = await this.boardRepository.findOne({_id})
-    await this.boardRepository.deleteOne({_id})
-    return board
-  }
-
   async updateBoard(user: User, board: UpdateBoard): Promise<Board | undefined> {
     const oldBoard = await this.boardRepository.findOne({
       _id: board._id,
@@ -71,5 +64,12 @@ export class BoardService {
     })
     await this.boardRepository.update({_id: board._id}, board)
     return Board.merge(oldBoard, board)
+  }
+
+  // TODO: replace with soft deleting
+  async removeBoard(_id: ObjectId): Promise<Board | undefined> {
+    const board = await this.boardRepository.findOne({_id})
+    await this.boardRepository.deleteOne({_id})
+    return board
   }
 }

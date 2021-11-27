@@ -1,73 +1,85 @@
-import {CanActivate, ExecutionContext, Injectable} from '@nestjs/common'
+import {CanActivate, ExecutionContext, Injectable, mixin} from '@nestjs/common'
 import {ObjectId} from 'mongodb'
 import {BoardService} from './service'
+import {BoardLinkService} from '../board-link/service'
+import {BoardPermission} from './permissions'
 
-export abstract class BoardGuard {
-  protected static extractUserId(context: ExecutionContext): ObjectId | undefined {
+export class BoardGuardUtils {
+  static extractUserId(context: ExecutionContext): ObjectId | undefined {
     return context.getArgByIndex(2).user?._id
   }
 
-  protected static extractBoardId(context: ExecutionContext): ObjectId | undefined {
+  static extractBoardId(context: ExecutionContext): ObjectId | undefined {
     const args = context.getArgByIndex(1)
     const id = args.boardId || args.board?._id || args._id
     return id && new ObjectId(id)
   }
-}
 
-@Injectable()
-export class CanUpdateBoard extends BoardGuard implements CanActivate {
-  constructor(private boardService: BoardService) {
-    super()
-  }
-
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const userId = CanUpdateBoard.extractUserId(context)
-    const boardId = CanUpdateBoard.extractBoardId(context)
-
-    return this.canUpdateBoard(userId, boardId)
-  }
-
-  public async canUpdateBoard(
-    userId: ObjectId | undefined,
-    boardId: ObjectId | undefined,
-  ): Promise<boolean> {
-    if (!boardId) {
-      return false
-    }
-
-    const board = await this.boardService.board(boardId)
-
-    return board.userId.equals(userId)
+  static extractLinkToken(context: ExecutionContext): string | undefined {
+    const args = context.getArgByIndex(1)
+    return args.linkToken || args.boardLink?.token
   }
 }
 
 @Injectable()
-export class CanGetBoard extends BoardGuard implements CanActivate {
-  constructor(private boardService: BoardService) {
-    super()
-  }
+export class BoardGuard implements CanActivate {
+  permissions: BoardPermission[] = []
+
+  constructor(private boardService: BoardService, private boardLinkService: BoardLinkService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const userId = CanUpdateBoard.extractUserId(context)
-    const boardId = CanUpdateBoard.extractBoardId(context)
+    const userId = BoardGuardUtils.extractUserId(context)
+    const boardId = BoardGuardUtils.extractBoardId(context)
+    const linkToken = BoardGuardUtils.extractLinkToken(context)
 
-    return this.canGetBoard(userId, boardId)
+    return this.hasPermissions(boardId, userId, linkToken)
   }
 
-  public async canGetBoard(
-    userId: ObjectId | undefined,
-    boardId: ObjectId | undefined,
-  ): Promise<boolean> {
-    if (!boardId) {
-      return false
-    }
-
-    const board = await this.boardService.board(boardId)
-
-    if (!board.isPrivate) {
+  public async hasPermissions(boardId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+    if (
+      !boardId &&
+      this.permissions.every(perm => perm === BoardPermission.CREATE_BOARD) &&
+      userId
+    ) {
       return true
     }
 
-    return board.userId.equals(userId)
+    if (!boardId) {
+      return false
+    }
+
+    const board = await this.boardService.board(boardId)
+
+    if (!board) {
+      return false
+    }
+
+    if (board.userId.equals(userId)) {
+      return true
+    }
+
+    if (!board.isPrivate && this.permissions.every(perm => perm === BoardPermission.VIEW_BOARD)) {
+      return true
+    }
+
+    if (!linkToken) {
+      return false
+    }
+
+    const link = await this.boardLinkService.getBoardLinkByLink(linkToken)
+
+    if (!link) {
+      return false
+    }
+
+    return this.permissions.every(perm => link.permissions.includes(perm))
+  }
+
+  static for(permissions: BoardPermission | BoardPermission[]) {
+    return mixin(
+      class extends BoardGuard {
+        permissions: BoardPermission[] = Array.isArray(permissions) ? permissions : [permissions]
+      },
+    )
   }
 }
