@@ -4,7 +4,7 @@ import {AuthService} from './service'
 @Injectable()
 export class AuthGlobalGuard implements CanActivate {
   @Inject(AuthService)
-  private authService: AuthService
+  private authService!: AuthService
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const graphqlContext = context.getArgByIndex(2)

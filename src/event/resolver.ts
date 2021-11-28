@@ -23,9 +23,9 @@ export class EventResolver {
   }
 
   @Mutation(() => Event, {nullable: true})
-  @UseGuards(EventGuard.for(EventPermission.REMOVE_EVENT))
+  @UseGuards(EventGuard.for(EventPermission.CREATE_EVENT))
   createEvent(
-    @InjectUser() user: User | undefined,
+    @InjectUser() user: User,
     @Args('event', {type: () => CreateEvent}, ParseObjectID.for('boardId')) event: CreateEvent,
   ): Promise<Event | undefined> {
     return this.eventService.createEvent(user, event)

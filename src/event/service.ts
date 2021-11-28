@@ -8,7 +8,7 @@ import {User} from '../user/model'
 @Injectable()
 export class EventService {
   @Inject(forwardRef(() => getRepositoryToken(Event)))
-  private eventRepository: MongoRepository<Event>
+  private eventRepository!: MongoRepository<Event>
 
   static extractEventId(context: ExecutionContext): ObjectId | undefined {
     const args = context.getArgByIndex(1)
@@ -30,7 +30,13 @@ export class EventService {
 
   async updateEvent(event: UpdateEvent): Promise<Event | undefined> {
     const oldEvent = await this.eventRepository.findOne({_id: event._id})
+
+    if (!oldEvent) {
+      return undefined
+    }
+
     await this.eventRepository.updateOne({_id: event._id}, {$set: event}, {upsert: true})
+
     return Event.merge(oldEvent, event)
   }
 

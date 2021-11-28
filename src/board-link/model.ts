@@ -30,7 +30,7 @@ export class BoardLink extends BaseEntity {
   boardId!: ObjectId
 
   @Field(() => Board)
-  board: Board
+  board?: Board
 }
 
 @InputType()

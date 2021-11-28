@@ -10,7 +10,7 @@ import {Board, CreateBoard, UpdateBoard} from './model'
 @Injectable()
 export class BoardService {
   @Inject(forwardRef(() => getRepositoryToken(Board)))
-  private boardRepository: MongoRepository<Board>
+  private boardRepository!: MongoRepository<Board>
 
   @Inject(forwardRef(() => EventService))
   private eventService!: EventService
@@ -65,7 +65,13 @@ export class BoardService {
 
   async updateBoard(board: UpdateBoard): Promise<Board | undefined> {
     const oldBoard = await this.boardRepository.findOne({_id: board._id})
+
+    if (!oldBoard) {
+      return undefined
+    }
+
     await this.boardRepository.update({_id: board._id}, board)
+
     return Board.merge(oldBoard, board)
   }
 

@@ -42,7 +42,7 @@ export class BoardGuard implements CanActivate {
       return false
     }
 
-    if (board.userId.equals(userId)) {
+    if (userId?.equals(board.userId)) {
       return true
     }
 

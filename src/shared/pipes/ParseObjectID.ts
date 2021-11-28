@@ -16,7 +16,7 @@ export class ParseObjectID implements PipeTransform {
       return ObjectId.isValid(value) ? new ObjectId(value) : value
     }
 
-    return this.fields.reduce((value, field) => {
+    return this.fields?.reduce<Record<string, string | ObjectId>>((value, field) => {
       if (value[field] && ObjectId.isValid(value[field])) {
         return {...value, [field]: new ObjectId(value[field])}
       }
@@ -25,7 +25,7 @@ export class ParseObjectID implements PipeTransform {
     }, value)
   }
 
-  static for(fields?: string[] | string) {
+  static for(fields: string[] | string) {
     const pipe = new ParseObjectID()
     pipe.fields = Array.isArray(fields) ? fields : [fields]
     return pipe

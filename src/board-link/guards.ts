@@ -22,22 +22,26 @@ export class BoardLinkGuard implements CanActivate {
     const linkToken = BoardLinkService.extractLinkToken(context)
 
     return boardLinkId
-      ? this.hasPermissionsForLink(userId, boardLinkId, linkToken)
-      : this.hasPermissionsForBoard(userId, boardId, linkToken)
+      ? this.hasPermissionsForLink(boardLinkId, userId, linkToken)
+      : this.hasPermissionsForBoard(boardId, userId, linkToken)
   }
 
   public async hasPermissionsForBoard(
-    userId: ObjectId,
-    boardId: ObjectId,
+    boardId?: ObjectId,
+    userId?: ObjectId,
     linkToken?: string,
   ): Promise<boolean> {
+    if (!boardId) {
+      return false
+    }
+
     const board = await this.boardService.board(boardId)
 
     if (!board) {
       return false
     }
 
-    if (userId.equals(board.userId)) {
+    if (userId?.equals(board.userId)) {
       return true
     }
 
@@ -54,7 +58,7 @@ export class BoardLinkGuard implements CanActivate {
     return this.permissions.every(perm => myLink.permissions.includes(perm))
   }
 
-  public async hasPermissionsForLink(userId: ObjectId, linkId: ObjectId, linkToken?: string) {
+  public async hasPermissionsForLink(linkId?: ObjectId, userId?: ObjectId, linkToken?: string) {
     if (!linkId) {
       return false
     }
@@ -65,7 +69,7 @@ export class BoardLinkGuard implements CanActivate {
       return false
     }
 
-    return this.hasPermissionsForBoard(userId, link.boardId, linkToken)
+    return this.hasPermissionsForBoard(link.boardId, userId, linkToken)
   }
 
   static for(permissions: BoardLinkPermission | BoardLinkPermission[]) {

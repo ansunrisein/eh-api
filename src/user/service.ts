@@ -7,7 +7,7 @@ import {User} from './model'
 @Injectable()
 export class UserService {
   @Inject(forwardRef(() => getRepositoryToken(User)))
-  private userRepository: MongoRepository<User>
+  private userRepository!: MongoRepository<User>
 
   async create(user: Partial<Omit<User, 'providerId'>> & Pick<User, 'providerId'>): Promise<User> {
     return this.userRepository.save(user)

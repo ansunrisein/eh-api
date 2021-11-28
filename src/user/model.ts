@@ -10,7 +10,7 @@ export class User extends BaseEntity {
   _id!: ObjectId
 
   @Column()
-  providerId: string
+  providerId!: string
 
   @Field(() => String)
   @Column({unique: true})

@@ -6,7 +6,7 @@ import {User} from './model'
 
 export class UserResolver {
   @Inject(forwardRef(() => UserService))
-  private userService: UserService
+  private userService!: UserService
 
   @Query(() => User, {nullable: true})
   me(@InjectUser() user: User | undefined): User | undefined {
