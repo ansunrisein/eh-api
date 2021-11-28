@@ -1,5 +1,5 @@
 import {BaseEntity, Column, Entity, ObjectIdColumn} from 'typeorm'
-import {ArgsType, Field, ID, ObjectType} from '@nestjs/graphql'
+import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
 import {Event} from '../event/model'
@@ -30,7 +30,7 @@ export class Board extends BaseEntity {
   events!: Event[]
 }
 
-@ArgsType()
+@InputType()
 export class CreateBoard {
   @Field(() => String)
   title!: string
@@ -39,7 +39,7 @@ export class CreateBoard {
   isPrivate!: boolean
 }
 
-@ArgsType()
+@InputType()
 export class UpdateBoard extends CreateBoard {
   @Field(() => ID)
   _id!: ObjectId

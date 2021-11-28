@@ -12,7 +12,7 @@ export class BoardLinkService {
 
   static extractBoardLinkId(context: ExecutionContext): ObjectId | undefined {
     const args = context.getArgByIndex(1)
-    const id = args.boardLinkId || args.boardLink?._id || args._id
+    const id = args.boardLink?._id || args.boardLinkId
     return id && new ObjectId(id)
   }
 

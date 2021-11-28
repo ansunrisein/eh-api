@@ -32,10 +32,10 @@ export class BoardResolver {
   @Query(() => Board)
   @UseGuards(BoardGuard.for(BoardPermission.VIEW_BOARD))
   board(
-    @Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId,
+    @Args('boardId', {type: () => ID}, ParseObjectID) boardId: ObjectId,
     @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Board | undefined> {
-    return this.boardService.board(_id)
+    return this.boardService.board(boardId)
   }
 
   @Query(() => [Board])
@@ -47,7 +47,7 @@ export class BoardResolver {
   @UseGuards(BoardGuard.for(BoardPermission.CREATE_BOARD))
   createBoard(
     @InjectUser() user: User,
-    @Args() board: CreateBoard,
+    @Args('board') board: CreateBoard,
     @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Board | undefined> {
     return this.boardService.createBoard(user, board)
@@ -56,10 +56,10 @@ export class BoardResolver {
   @Mutation(() => Board)
   @UseGuards(BoardGuard.for(BoardPermission.REMOVE_BOARD))
   removeBoard(
-    @Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId,
+    @Args('boardId', {type: () => ID}, ParseObjectID) boardId: ObjectId,
     @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Board | undefined> {
-    return this.boardService.removeBoard(_id)
+    return this.boardService.removeBoard(boardId)
   }
 
   @Mutation(() => Board)
@@ -70,7 +70,7 @@ export class BoardResolver {
     ]),
   )
   updateBoard(
-    @Args(ParseObjectID.for(['_id'])) board: UpdateBoard,
+    @Args('board', {type: () => UpdateBoard}, ParseObjectID.for(['_id'])) board: UpdateBoard,
     @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Board | undefined> {
     return this.boardService.updateBoard(board)

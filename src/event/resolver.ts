@@ -16,30 +16,34 @@ export class EventResolver {
 
   @Query(() => Event, {nullable: true})
   @UseGuards(EventGuard.for(EventPermission.VIEW_EVENT))
-  event(@Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId): Promise<Event | undefined> {
-    return this.eventService.getById(_id)
+  event(
+    @Args('eventId', {type: () => ID}, ParseObjectID) eventId: ObjectId,
+  ): Promise<Event | undefined> {
+    return this.eventService.getById(eventId)
   }
 
   @Mutation(() => Event, {nullable: true})
   @UseGuards(EventGuard.for(EventPermission.REMOVE_EVENT))
   createEvent(
     @InjectUser() user: User | undefined,
-    @Args(ParseObjectID.for('boardId')) event: CreateEvent,
+    @Args('event', {type: () => CreateEvent}, ParseObjectID.for('boardId')) event: CreateEvent,
   ): Promise<Event | undefined> {
     return this.eventService.createEvent(user, event)
   }
 
   @Mutation(() => Event, {nullable: true})
   @UseGuards(EventGuard.for(EventPermission.UPDATE_EVENT))
-  updateEvent(@Args(ParseObjectID.for('_id')) event: UpdateEvent): Promise<Event | undefined> {
+  updateEvent(
+    @Args('event', {type: () => UpdateEvent}, ParseObjectID.for('_id')) event: UpdateEvent,
+  ): Promise<Event | undefined> {
     return this.eventService.updateEvent(event)
   }
 
   @Mutation(() => Event, {nullable: true})
   @UseGuards(EventGuard.for(EventPermission.REMOVE_EVENT))
   removeEvent(
-    @Args('_id', {type: () => ID}, ParseObjectID) _id: ObjectId,
+    @Args('eventId', {type: () => ID}, ParseObjectID) eventId: ObjectId,
   ): Promise<Event | undefined> {
-    return this.eventService.removeEvent(_id)
+    return this.eventService.removeEvent(eventId)
   }
 }

@@ -12,7 +12,7 @@ export class EventService {
 
   static extractEventId(context: ExecutionContext): ObjectId | undefined {
     const args = context.getArgByIndex(1)
-    const id = args.eventId || args.event?._id || args._id
+    const id = args.event?._id || args.eventId
     return id && new ObjectId(id)
   }
 

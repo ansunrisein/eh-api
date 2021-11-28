@@ -34,7 +34,8 @@ export class BoardLinkResolver {
   @Mutation(() => BoardLink)
   @UseGuards(BoardLinkGuard.for(BoardLinkPermission.CREATE_BOARD_LINK))
   createBoardLink(
-    @Args(ParseObjectID.for(['boardId'])) boardLink: CreateBoardLink,
+    @Args('boardLink', {type: () => CreateBoardLink}, ParseObjectID.for(['boardId']))
+    boardLink: CreateBoardLink,
     @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ) {
     return this.boardLinkService.createBoardLink(boardLink)
@@ -43,7 +44,8 @@ export class BoardLinkResolver {
   @Mutation(() => BoardLink)
   @UseGuards(BoardLinkGuard.for(BoardLinkPermission.UPDATE_BOARD_LINK))
   updateBoardLink(
-    @Args(ParseObjectID.for(['_id'])) boardLink: UpdateBoardLink,
+    @Args('boardLink', {type: () => UpdateBoardLink}, ParseObjectID.for(['_id']))
+    boardLink: UpdateBoardLink,
     @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ) {
     return this.boardLinkService.updateBoardLink(boardLink)
@@ -52,9 +54,9 @@ export class BoardLinkResolver {
   @Mutation(() => BoardLink)
   @UseGuards(BoardLinkGuard.for(BoardLinkPermission.DELETE_BOARD_LINK))
   removeBoardLink(
-    @Args('id', {type: () => ID}, ParseObjectID) id: ObjectId,
+    @Args('boardLinkId', {type: () => ID}, ParseObjectID) boardLinkId: ObjectId,
     @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ) {
-    return this.boardLinkService.removeBoard(id)
+    return this.boardLinkService.removeBoard(boardLinkId)
   }
 }

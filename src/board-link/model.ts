@@ -1,6 +1,6 @@
 import {BaseEntity, Column, Entity, ObjectIdColumn} from 'typeorm'
 import {ObjectId} from 'mongodb'
-import {ArgsType, Field, ID, ObjectType, registerEnumType} from '@nestjs/graphql'
+import {Field, ID, InputType, ObjectType, registerEnumType} from '@nestjs/graphql'
 import {Board} from '../board/model'
 import {BoardPermission} from '../board/permissions'
 import {BoardLinkPermission} from './permissions'
@@ -33,7 +33,7 @@ export class BoardLink extends BaseEntity {
   board: Board
 }
 
-@ArgsType()
+@InputType()
 export class CreateBoardLink {
   @Field(() => ID)
   boardId!: ObjectId
@@ -42,7 +42,7 @@ export class CreateBoardLink {
   permissions!: Permission[]
 }
 
-@ArgsType()
+@InputType()
 export class UpdateBoardLink {
   @Field(() => ID)
   _id!: ObjectId

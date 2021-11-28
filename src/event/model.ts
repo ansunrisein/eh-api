@@ -1,5 +1,5 @@
 import {BaseEntity, Column, Entity, ObjectIdColumn} from 'typeorm'
-import {ArgsType, Field, ID, ObjectType} from '@nestjs/graphql'
+import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
 import {ObjectId} from 'mongodb'
 
 @ObjectType()
@@ -24,7 +24,7 @@ export class Event extends BaseEntity {
   content!: string
 }
 
-@ArgsType()
+@InputType()
 export class CreateEvent extends BaseEntity {
   @Column()
   @Field(() => ID)
@@ -39,7 +39,7 @@ export class CreateEvent extends BaseEntity {
   content!: string
 }
 
-@ArgsType()
+@InputType()
 export class UpdateEvent extends BaseEntity {
   @Field(() => ID)
   @ObjectIdColumn()
