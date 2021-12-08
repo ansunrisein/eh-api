@@ -43,7 +43,7 @@ export class CreateBoard {
 }
 
 @InputType()
-export class UpdateBoard extends CreateBoard {
+export class UpdateBoard {
   @Field(() => ID)
   _id!: ObjectId
 
