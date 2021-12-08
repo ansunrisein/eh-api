@@ -4,7 +4,7 @@ import {ObjectId} from 'mongodb'
 import {Board} from '../board/model'
 import {BoardService} from '../board/service'
 import {ParseObjectID} from '../shared/pipes'
-import {BoardLink, CreateBoardLink, UpdateBoardLink} from './model'
+import {BoardLink, CreateBoardLink, EntityPermissions, UpdateBoardLink} from './model'
 import {BoardLinkService} from './service'
 import {BoardLinkGuard} from './guards'
 import {BoardLinkPermission} from './permissions'
@@ -20,6 +20,20 @@ export class BoardLinkResolver {
   @ResolveField('board', () => Board)
   board(@Parent() boardLink: BoardLink) {
     return this.boardService.board(boardLink.boardId)
+  }
+
+  @Query(() => [EntityPermissions])
+  permissions() {
+    return this.boardLinkService.getPermissions()
+  }
+
+  @Query(() => BoardLink, {nullable: true})
+  @UseGuards(BoardLinkGuard.for(BoardLinkPermission.VIEW_BOARD_LINK))
+  boardLink(
+    @Args('boardLinkId', {type: () => ID}, ParseObjectID) boardLinkId: ObjectId,
+    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
+  ) {
+    return this.boardLinkService.getBoardLink(boardLinkId)
   }
 
   @Query(() => [BoardLink])

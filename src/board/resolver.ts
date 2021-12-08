@@ -1,23 +1,30 @@
 import {Args, ID, Mutation, Parent, Query, ResolveField, Resolver} from '@nestjs/graphql'
 import {forwardRef, Inject, UseGuards} from '@nestjs/common'
 import {ObjectId} from 'mongodb'
+import {ParseObjectID} from '../shared/pipes'
 import {InjectUser} from '../auth/@InjectUser'
 import {User} from '../user/model'
-import {ParseObjectID} from '../shared/pipes'
 import {Event} from '../event/model'
-import {BoardService} from './service'
-import {Board, CreateBoard, UpdateBoard} from './model'
 import {UserService} from '../user/service'
+import {BoardLink} from '../board-link/model'
+import {BoardLinkService} from '../board-link/service'
+import {BoardLinkGuard} from '../board-link/guards'
+import {BoardLinkPermission} from '../board-link/permissions'
 import {BoardGuard} from './guards'
 import {BoardPermission} from './permissions'
+import {BoardService} from './service'
+import {Board, CreateBoard, UpdateBoard} from './model'
 
 @Resolver(() => Board)
 export class BoardResolver {
   @Inject(forwardRef(() => BoardService))
-  public boardService!: BoardService
+  private boardService!: BoardService
 
   @Inject(forwardRef(() => UserService))
-  public userService!: UserService
+  private userService!: UserService
+
+  @Inject(forwardRef(() => BoardLinkService))
+  private boardLinkService!: BoardLinkService
 
   @ResolveField('events', () => [Event])
   events(@Parent() board: Board) {
@@ -27,6 +34,12 @@ export class BoardResolver {
   @ResolveField('user', () => User)
   user(@Parent() board: Board) {
     return this.userService.getUserById(board.userId)
+  }
+
+  @ResolveField('boardLinks', () => [BoardLink])
+  @UseGuards(BoardLinkGuard.for(BoardLinkPermission.VIEW_BOARD_LINK))
+  boardLinks(@Parent() board: Board) {
+    return this.boardLinkService.getBoardLinksByBoardId(board._id)
   }
 
   @Query(() => Board)

@@ -3,6 +3,7 @@ import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
 import {Event} from '../event/model'
+import {BoardLink} from '../board-link/model'
 
 @ObjectType()
 @Entity({name: 'boards'})
@@ -26,8 +27,10 @@ export class Board extends BaseEntity {
   isPrivate!: boolean
 
   @Field(() => [Event])
-  @Column()
-  events!: Event[]
+  events?: Event[]
+
+  @Field(() => [BoardLink])
+  boardLinks?: BoardLink[]
 }
 
 @InputType()
