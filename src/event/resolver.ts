@@ -18,6 +18,7 @@ export class EventResolver {
   @UseGuards(EventGuard.for(EventPermission.VIEW_EVENT))
   event(
     @Args('eventId', {type: () => ID}, ParseObjectID) eventId: ObjectId,
+    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Event | undefined> {
     return this.eventService.getById(eventId)
   }
@@ -27,6 +28,7 @@ export class EventResolver {
   createEvent(
     @InjectUser() user: User,
     @Args('event', {type: () => CreateEvent}, ParseObjectID.for('boardId')) event: CreateEvent,
+    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Event | undefined> {
     return this.eventService.createEvent(user, event)
   }
@@ -35,6 +37,7 @@ export class EventResolver {
   @UseGuards(EventGuard.for(EventPermission.UPDATE_EVENT))
   updateEvent(
     @Args('event', {type: () => UpdateEvent}, ParseObjectID.for('_id')) event: UpdateEvent,
+    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Event | undefined> {
     return this.eventService.updateEvent(event)
   }
@@ -43,6 +46,7 @@ export class EventResolver {
   @UseGuards(EventGuard.for(EventPermission.REMOVE_EVENT))
   removeEvent(
     @Args('eventId', {type: () => ID}, ParseObjectID) eventId: ObjectId,
+    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Event | undefined> {
     return this.eventService.removeEvent(eventId)
   }
