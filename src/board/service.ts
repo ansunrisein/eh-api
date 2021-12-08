@@ -17,8 +17,18 @@ export class BoardService {
 
   static extractBoardId(context: ExecutionContext): ObjectId | undefined {
     const args = context.getArgByIndex(1)
-    const id = args.board?._id || args.boardId
-    return id && new ObjectId(id)
+
+    const id = args.board?._id || args.boardId || args.event?.boardId || args.boardLink?.boardId
+
+    if (id) {
+      return id && new ObjectId(id)
+    }
+
+    const root = context.getArgByIndex(0)
+
+    if (root instanceof Board) {
+      return root._id
+    }
   }
 
   async board(_id: ObjectId): Promise<Board | undefined> {
