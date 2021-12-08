@@ -52,7 +52,7 @@ export class BoardLinkResolver {
   }
 
   @Mutation(() => BoardLink)
-  @UseGuards(BoardLinkGuard.for(BoardLinkPermission.DELETE_BOARD_LINK))
+  @UseGuards(BoardLinkGuard.for(BoardLinkPermission.REMOVE_BOARD_LINK))
   removeBoardLink(
     @Args('boardLinkId', {type: () => ID}, ParseObjectID) boardLinkId: ObjectId,
     @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
