@@ -31,6 +31,10 @@ export class BoardLinkGuard implements CanActivate {
     userId?: ObjectId,
     linkToken?: string,
   ): Promise<boolean> {
+    if (!userId && !this.permissions.every(perm => perm === BoardLinkPermission.VIEW_BOARD_LINK)) {
+      return false
+    }
+
     if (!boardId) {
       return false
     }
@@ -59,11 +63,15 @@ export class BoardLinkGuard implements CanActivate {
   }
 
   public async hasPermissionsForLink(linkId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+    if (!userId && !this.permissions.every(perm => perm === BoardLinkPermission.VIEW_BOARD_LINK)) {
+      return false
+    }
+
     if (!linkId) {
       return false
     }
 
-    const link = await this.boardLinkService.boardLink(linkId)
+    const link = await this.boardLinkService.getBoardLink(linkId)
 
     if (!link) {
       return false

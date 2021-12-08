@@ -24,6 +24,10 @@ export class BoardGuard implements CanActivate {
   }
 
   public async hasPermissions(boardId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+    if (!userId && !this.permissions.every(perm => perm === BoardPermission.VIEW_BOARD)) {
+      return false
+    }
+
     if (
       !boardId &&
       this.permissions.every(perm => perm === BoardPermission.CREATE_BOARD) &&

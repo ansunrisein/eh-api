@@ -31,6 +31,10 @@ export class EventGuard implements CanActivate {
   }
 
   public async hasPermissionsForBoard(boardId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+    if (!userId && !this.permissions.every(perm => perm === EventPermission.VIEW_EVENT)) {
+      return false
+    }
+
     if (!boardId) {
       return false
     }
@@ -63,6 +67,10 @@ export class EventGuard implements CanActivate {
   }
 
   public async hasPermissionsForEvent(eventId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+    if (!userId && !this.permissions.every(perm => perm === EventPermission.VIEW_EVENT)) {
+      return false
+    }
+
     if (!eventId) {
       return false
     }
