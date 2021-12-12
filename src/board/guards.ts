@@ -7,7 +7,7 @@ import {AuthService} from '../auth/service'
 
 @Injectable()
 export class BoardGuard implements CanActivate {
-  permissions: BoardPermission[] = []
+  permission?: BoardPermission
 
   @Inject(forwardRef(() => BoardService))
   private boardService!: BoardService
@@ -20,19 +20,15 @@ export class BoardGuard implements CanActivate {
     const boardId = BoardService.extractBoardId(context)
     const linkToken = BoardLinkService.extractLinkToken(context)
 
-    return this.hasPermissions(boardId, userId, linkToken)
+    return this.hasPermission(boardId, userId, linkToken)
   }
 
-  public async hasPermissions(boardId?: ObjectId, userId?: ObjectId, linkToken?: string) {
-    if (!userId && !this.permissions.every(perm => perm === BoardPermission.VIEW_BOARD)) {
+  public async hasPermission(boardId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+    if (!userId && this.permission !== BoardPermission.VIEW_BOARD) {
       return false
     }
 
-    if (
-      !boardId &&
-      this.permissions.every(perm => perm === BoardPermission.CREATE_BOARD) &&
-      userId
-    ) {
+    if (!boardId && this.permission === BoardPermission.CREATE_BOARD && userId) {
       return true
     }
 
@@ -50,7 +46,7 @@ export class BoardGuard implements CanActivate {
       return true
     }
 
-    if (!board.isPrivate && this.permissions.every(perm => perm === BoardPermission.VIEW_BOARD)) {
+    if (!board.isPrivate && this.permission === BoardPermission.VIEW_BOARD) {
       return true
     }
 
@@ -64,13 +60,16 @@ export class BoardGuard implements CanActivate {
       return false
     }
 
-    return this.permissions.every(perm => link.permissions.includes(perm))
+    return (
+      BoardLinkService.isAvailablePermission(this.permission) &&
+      link.permissions.includes(this.permission)
+    )
   }
 
-  static for(permissions: BoardPermission | BoardPermission[]) {
+  static for(permission: BoardPermission) {
     return mixin(
       class extends BoardGuard {
-        permissions: BoardPermission[] = Array.isArray(permissions) ? permissions : [permissions]
+        permission: BoardPermission = permission
       },
     )
   }

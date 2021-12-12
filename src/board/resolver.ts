@@ -77,10 +77,8 @@ export class BoardResolver {
 
   @Mutation(() => Board)
   @UseGuards(
-    BoardGuard.for([
-      BoardPermission.UPDATE_BOARD_DESCRIPTION,
-      BoardPermission.UPDATE_BOARD_VISIBILITY,
-    ]),
+    BoardGuard.for(BoardPermission.UPDATE_BOARD_DESCRIPTION),
+    BoardGuard.for(BoardPermission.UPDATE_BOARD_VISIBILITY),
   )
   updateBoard(
     @Args('board', {type: () => UpdateBoard}, ParseObjectID.for(['_id'])) board: UpdateBoard,

@@ -18,6 +18,12 @@ export class BoardLinkService {
   @Inject(forwardRef(() => getRepositoryToken(BoardLink)))
   private boardLinkRepository!: MongoRepository<BoardLink>
 
+  static isAvailablePermission = <T>(perm: T): perm is T & Permission => {
+    return (
+      !!perm && typeof perm === 'string' && (Object.values(Permission) as unknown[]).includes(perm)
+    )
+  }
+
   static extractBoardLinkId(context: ExecutionContext): ObjectId | undefined {
     const args = context.getArgByIndex(1)
     const id = args.boardLink?._id || args.boardLinkId

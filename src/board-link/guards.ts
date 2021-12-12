@@ -7,7 +7,7 @@ import {AuthService} from '../auth/service'
 
 @Injectable()
 export class BoardLinkGuard implements CanActivate {
-  permissions: BoardLinkPermission[] = []
+  permission?: BoardLinkPermission
 
   @Inject(forwardRef(() => BoardLinkService))
   public boardLinkService!: BoardLinkService
@@ -22,16 +22,16 @@ export class BoardLinkGuard implements CanActivate {
     const linkToken = BoardLinkService.extractLinkToken(context)
 
     return boardLinkId
-      ? this.hasPermissionsForLink(boardLinkId, userId, linkToken)
-      : this.hasPermissionsForBoard(boardId, userId, linkToken)
+      ? this.hasPermissionForLink(boardLinkId, userId, linkToken)
+      : this.hasPermissionForBoard(boardId, userId, linkToken)
   }
 
-  public async hasPermissionsForBoard(
+  public async hasPermissionForBoard(
     boardId?: ObjectId,
     userId?: ObjectId,
     linkToken?: string,
   ): Promise<boolean> {
-    if (!userId && !this.permissions.every(perm => perm === BoardLinkPermission.VIEW_BOARD_LINK)) {
+    if (!userId && this.permission !== BoardLinkPermission.VIEW_BOARD_LINK) {
       return false
     }
 
@@ -59,11 +59,11 @@ export class BoardLinkGuard implements CanActivate {
       return false
     }
 
-    return this.permissions.every(perm => myLink.permissions.includes(perm))
+    return !!this.permission && myLink.permissions.includes(this.permission)
   }
 
-  public async hasPermissionsForLink(linkId?: ObjectId, userId?: ObjectId, linkToken?: string) {
-    if (!userId && !this.permissions.every(perm => perm === BoardLinkPermission.VIEW_BOARD_LINK)) {
+  public async hasPermissionForLink(linkId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+    if (!userId && this.permission !== BoardLinkPermission.VIEW_BOARD_LINK) {
       return false
     }
 
@@ -77,15 +77,13 @@ export class BoardLinkGuard implements CanActivate {
       return false
     }
 
-    return this.hasPermissionsForBoard(link.boardId, userId, linkToken)
+    return this.hasPermissionForBoard(link.boardId, userId, linkToken)
   }
 
-  static for(permissions: BoardLinkPermission | BoardLinkPermission[]) {
+  static for(permission: BoardLinkPermission) {
     return mixin(
       class extends BoardLinkGuard {
-        permissions: BoardLinkPermission[] = Array.isArray(permissions)
-          ? permissions
-          : [permissions]
+        permission: BoardLinkPermission = permission
       },
     )
   }

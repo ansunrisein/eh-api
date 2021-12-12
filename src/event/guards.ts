@@ -8,7 +8,7 @@ import {EventPermission} from './permissions'
 
 @Injectable()
 export class EventGuard implements CanActivate {
-  permissions: EventPermission[] = []
+  permission?: EventPermission
 
   @Inject(forwardRef(() => BoardService))
   private boardService!: BoardService
@@ -26,12 +26,12 @@ export class EventGuard implements CanActivate {
     const linkToken = BoardLinkService.extractLinkToken(context)
 
     return boardId
-      ? this.hasPermissionsForBoard(boardId, userId, linkToken)
-      : this.hasPermissionsForEvent(eventId, userId, linkToken)
+      ? this.hasPermissionForBoard(boardId, userId, linkToken)
+      : this.hasPermissionForEvent(eventId, userId, linkToken)
   }
 
-  public async hasPermissionsForBoard(boardId?: ObjectId, userId?: ObjectId, linkToken?: string) {
-    if (!userId && !this.permissions.every(perm => perm === EventPermission.VIEW_EVENT)) {
+  public async hasPermissionForBoard(boardId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+    if (!userId && this.permission !== EventPermission.VIEW_EVENT) {
       return false
     }
 
@@ -49,7 +49,7 @@ export class EventGuard implements CanActivate {
       return true
     }
 
-    if (!board.isPrivate && this.permissions.every(perm => perm === EventPermission.VIEW_EVENT)) {
+    if (!board.isPrivate && this.permission === EventPermission.VIEW_EVENT) {
       return true
     }
 
@@ -63,11 +63,11 @@ export class EventGuard implements CanActivate {
       return false
     }
 
-    return this.permissions.every(perm => link.permissions.includes(perm))
+    return !!this.permission && link.permissions.includes(this.permission)
   }
 
-  public async hasPermissionsForEvent(eventId?: ObjectId, userId?: ObjectId, linkToken?: string) {
-    if (!userId && !this.permissions.every(perm => perm === EventPermission.VIEW_EVENT)) {
+  public async hasPermissionForEvent(eventId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+    if (!userId && this.permission !== EventPermission.VIEW_EVENT) {
       return false
     }
 
@@ -81,13 +81,13 @@ export class EventGuard implements CanActivate {
       return false
     }
 
-    return this.hasPermissionsForBoard(event.boardId, userId, linkToken)
+    return this.hasPermissionForBoard(event.boardId, userId, linkToken)
   }
 
-  static for(permissions: EventPermission | EventPermission[]) {
+  static for(permission: EventPermission) {
     return mixin(
       class extends EventGuard {
-        permissions: EventPermission[] = Array.isArray(permissions) ? permissions : [permissions]
+        permission: EventPermission = permission
       },
     )
   }
