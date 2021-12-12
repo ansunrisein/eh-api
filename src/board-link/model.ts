@@ -6,14 +6,27 @@ import {BoardPermission} from '../board/permissions'
 import {BoardLinkPermission} from './permissions'
 import {EventPermission} from '../event/permissions'
 
+const AvailableBoardPermission: Omit<
+  Record<keyof typeof BoardPermission, BoardPermission>,
+  'CREATE_BOARD'
+> = {
+  VIEW_BOARD: BoardPermission.VIEW_BOARD,
+  UPDATE_BOARD_DESCRIPTION: BoardPermission.UPDATE_BOARD_DESCRIPTION,
+  UPDATE_BOARD_VISIBILITY: BoardPermission.UPDATE_BOARD_VISIBILITY,
+  REMOVE_BOARD: BoardPermission.REMOVE_BOARD,
+}
+
 // TODO: fix types
 export const permissions = {
-  Board: BoardPermission,
+  Board: AvailableBoardPermission,
   Event: EventPermission,
   BoardLink: BoardLinkPermission,
 }
-export type Permission = BoardLinkPermission | BoardPermission | EventPermission
-export const Permission = {...BoardLinkPermission, ...BoardPermission, ...EventPermission}
+export type Permission =
+  | BoardLinkPermission
+  | Exclude<BoardPermission, BoardPermission.CREATE_BOARD>
+  | EventPermission
+export const Permission = {...BoardLinkPermission, ...AvailableBoardPermission, ...EventPermission}
 
 registerEnumType(Permission, {name: 'Permission'})
 
