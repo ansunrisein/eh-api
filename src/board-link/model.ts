@@ -59,6 +59,10 @@ export class BoardLink extends BaseEntity {
   @Column()
   link!: string
 
+  @Field(() => String)
+  @Column()
+  name!: string
+
   @Field(() => [Permission])
   @Column()
   permissions!: Permission[]
@@ -75,6 +79,9 @@ export class CreateBoardLink {
   @Field(() => ID)
   boardId!: ObjectId
 
+  @Field(() => String)
+  name!: string
+
   @Field(() => [Permission])
   permissions!: Permission[]
 }
@@ -83,6 +90,9 @@ export class CreateBoardLink {
 export class UpdateBoardLink {
   @Field(() => ID)
   _id!: ObjectId
+
+  @Field(() => String)
+  name!: string
 
   @Field(() => [Permission])
   permissions!: Permission[]
