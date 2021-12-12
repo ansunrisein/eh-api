@@ -26,11 +26,19 @@ export class EventGuard implements CanActivate {
     const linkToken = BoardLinkService.extractLinkToken(context)
 
     return boardId
-      ? this.hasPermissionForBoard(boardId, userId, linkToken)
-      : this.hasPermissionForEvent(eventId, userId, linkToken)
+      ? this.hasPermissionForBoard({boardId, userId, linkToken})
+      : this.hasPermissionForEvent({eventId, userId, linkToken})
   }
 
-  public async hasPermissionForBoard(boardId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+  public async hasPermissionForBoard({
+    boardId,
+    userId,
+    linkToken,
+  }: {
+    boardId?: ObjectId
+    userId?: ObjectId
+    linkToken?: string
+  }) {
     if (!userId && this.permission !== EventPermission.VIEW_EVENT) {
       return false
     }
@@ -66,7 +74,15 @@ export class EventGuard implements CanActivate {
     return !!this.permission && link.permissions.includes(this.permission)
   }
 
-  public async hasPermissionForEvent(eventId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+  public async hasPermissionForEvent({
+    eventId,
+    userId,
+    linkToken,
+  }: {
+    eventId?: ObjectId
+    userId?: ObjectId
+    linkToken?: string
+  }) {
     if (!userId && this.permission !== EventPermission.VIEW_EVENT) {
       return false
     }
@@ -81,7 +97,7 @@ export class EventGuard implements CanActivate {
       return false
     }
 
-    return this.hasPermissionForBoard(event.boardId, userId, linkToken)
+    return this.hasPermissionForBoard({boardId: event.boardId, userId, linkToken})
   }
 
   static for(permission: EventPermission) {

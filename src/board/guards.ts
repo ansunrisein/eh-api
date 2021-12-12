@@ -20,10 +20,18 @@ export class BoardGuard implements CanActivate {
     const boardId = BoardService.extractBoardId(context)
     const linkToken = BoardLinkService.extractLinkToken(context)
 
-    return this.hasPermission(boardId, userId, linkToken)
+    return this.hasPermission({boardId, userId, linkToken})
   }
 
-  public async hasPermission(boardId?: ObjectId, userId?: ObjectId, linkToken?: string) {
+  public async hasPermission({
+    boardId,
+    userId,
+    linkToken,
+  }: {
+    boardId?: ObjectId
+    userId?: ObjectId
+    linkToken?: string
+  }) {
     if (!userId && this.permission !== BoardPermission.VIEW_BOARD) {
       return false
     }
