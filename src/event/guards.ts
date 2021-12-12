@@ -34,12 +34,18 @@ export class EventGuard implements CanActivate {
     boardId,
     userId,
     linkToken,
+    permission = this.permission,
   }: {
     boardId?: ObjectId
     userId?: ObjectId
     linkToken?: string
+    permission?: EventPermission
   }) {
-    if (!userId && this.permission !== EventPermission.VIEW_EVENT) {
+    if (!permission) {
+      throw new Error('You forgot to pass permission into EventGuard')
+    }
+
+    if (!userId && permission !== EventPermission.VIEW_EVENT) {
       return false
     }
 
@@ -57,7 +63,7 @@ export class EventGuard implements CanActivate {
       return true
     }
 
-    if (!board.isPrivate && this.permission === EventPermission.VIEW_EVENT) {
+    if (!board.isPrivate && permission === EventPermission.VIEW_EVENT) {
       return true
     }
 
@@ -71,19 +77,25 @@ export class EventGuard implements CanActivate {
       return false
     }
 
-    return !!this.permission && link.permissions.includes(this.permission)
+    return !!permission && link.permissions.includes(permission)
   }
 
   public async hasPermissionForEvent({
     eventId,
     userId,
     linkToken,
+    permission = this.permission,
   }: {
     eventId?: ObjectId
     userId?: ObjectId
     linkToken?: string
+    permission?: EventPermission
   }) {
-    if (!userId && this.permission !== EventPermission.VIEW_EVENT) {
+    if (!permission) {
+      throw new Error('You forgot to pass permission into EventGuard')
+    }
+
+    if (!userId && permission !== EventPermission.VIEW_EVENT) {
       return false
     }
 

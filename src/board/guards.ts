@@ -27,16 +27,22 @@ export class BoardGuard implements CanActivate {
     boardId,
     userId,
     linkToken,
+    permission = this.permission,
   }: {
     boardId?: ObjectId
     userId?: ObjectId
     linkToken?: string
+    permission?: BoardPermission
   }) {
-    if (!userId && this.permission !== BoardPermission.VIEW_BOARD) {
+    if (!permission) {
+      throw new Error('You forgot to pass permission into BoardGuard')
+    }
+
+    if (!userId && permission !== BoardPermission.VIEW_BOARD) {
       return false
     }
 
-    if (!boardId && this.permission === BoardPermission.CREATE_BOARD && userId) {
+    if (!boardId && permission === BoardPermission.CREATE_BOARD && userId) {
       return true
     }
 
@@ -54,7 +60,7 @@ export class BoardGuard implements CanActivate {
       return true
     }
 
-    if (!board.isPrivate && this.permission === BoardPermission.VIEW_BOARD) {
+    if (!board.isPrivate && permission === BoardPermission.VIEW_BOARD) {
       return true
     }
 
@@ -69,8 +75,7 @@ export class BoardGuard implements CanActivate {
     }
 
     return (
-      BoardLinkService.isAvailablePermission(this.permission) &&
-      link.permissions.includes(this.permission)
+      BoardLinkService.isAvailablePermission(permission) && link.permissions.includes(permission)
     )
   }
 

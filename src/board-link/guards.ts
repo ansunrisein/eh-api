@@ -30,12 +30,18 @@ export class BoardLinkGuard implements CanActivate {
     boardId,
     userId,
     linkToken,
+    permission = this.permission,
   }: {
     boardId?: ObjectId
     userId?: ObjectId
     linkToken?: string
+    permission?: BoardLinkPermission
   }): Promise<boolean> {
-    if (!userId && this.permission !== BoardLinkPermission.VIEW_BOARD_LINK) {
+    if (!permission) {
+      throw new Error('You forgot to pass permission into BoardLinkGuard')
+    }
+
+    if (!userId && permission !== BoardLinkPermission.VIEW_BOARD_LINK) {
       return false
     }
 
@@ -63,19 +69,25 @@ export class BoardLinkGuard implements CanActivate {
       return false
     }
 
-    return !!this.permission && myLink.permissions.includes(this.permission)
+    return !!permission && myLink.permissions.includes(permission)
   }
 
   public async hasPermissionForLink({
     boardLinkId,
     userId,
     linkToken,
+    permission = this.permission,
   }: {
     boardLinkId?: ObjectId
     userId?: ObjectId
     linkToken?: string
+    permission?: BoardLinkPermission
   }) {
-    if (!userId && this.permission !== BoardLinkPermission.VIEW_BOARD_LINK) {
+    if (!permission) {
+      throw new Error('You forgot to pass permission into BoardLinkGuard')
+    }
+
+    if (!userId && permission !== BoardLinkPermission.VIEW_BOARD_LINK) {
       return false
     }
 
