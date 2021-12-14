@@ -6,7 +6,7 @@ import {InjectUser} from '../auth/@InjectUser'
 import {User} from '../user/model'
 import {Event} from '../event/model'
 import {UserService} from '../user/service'
-import {BoardLink} from '../board-link/model'
+import {BoardLink, Permission} from '../board-link/model'
 import {BoardLinkService} from '../board-link/service'
 import {BoardLinkGuard} from '../board-link/guards'
 import {BoardLinkPermission} from '../board-link/permissions'
@@ -14,6 +14,7 @@ import {BoardGuard} from './guards'
 import {BoardPermission} from './permissions'
 import {BoardService} from './service'
 import {Board, CreateBoard, UpdateBoard} from './model'
+import {InjectLinkToken} from '../auth/@InjectLinkToken'
 
 @Resolver(() => Board)
 export class BoardResolver {
@@ -40,6 +41,15 @@ export class BoardResolver {
   @UseGuards(BoardLinkGuard.for(BoardLinkPermission.VIEW_BOARD_LINK))
   boardLinks(@Parent() board: Board) {
     return this.boardLinkService.getBoardLinksByBoardId(board._id)
+  }
+
+  @ResolveField('permissions', () => [Permission])
+  permissions(
+    @InjectUser() user: User | undefined,
+    @InjectLinkToken() linkToken: string | undefined,
+    @Parent() board: Board,
+  ) {
+    return this.boardService.getBoardPermissions(board, user, linkToken)
   }
 
   @Query(() => Board)

@@ -3,7 +3,7 @@ import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
 import {Event} from '../event/model'
-import {BoardLink} from '../board-link/model'
+import {BoardLink, Permission} from '../board-link/model'
 
 @ObjectType()
 @Entity({name: 'boards'})
@@ -31,6 +31,9 @@ export class Board extends BaseEntity {
 
   @Field(() => [BoardLink])
   boardLinks?: BoardLink[]
+
+  @Field(() => [Permission])
+  permissions?: Permission[]
 }
 
 @InputType()

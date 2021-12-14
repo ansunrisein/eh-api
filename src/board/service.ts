@@ -6,6 +6,9 @@ import {User} from '../user/model'
 import {Event} from '../event/model'
 import {EventService} from '../event/service'
 import {Board, CreateBoard, UpdateBoard} from './model'
+import {Permission, permissions} from '../board-link/model'
+import {BoardLinkService} from '../board-link/service'
+import {BoardPermission} from './permissions'
 
 @Injectable()
 export class BoardService {
@@ -14,6 +17,9 @@ export class BoardService {
 
   @Inject(forwardRef(() => EventService))
   private eventService!: EventService
+
+  @Inject(forwardRef(() => BoardLinkService))
+  private boardLinkService!: BoardLinkService
 
   static extractBoardId(context: ExecutionContext): ObjectId | undefined {
     const args = context.getArgByIndex(1)
@@ -33,6 +39,30 @@ export class BoardService {
 
   async board(_id: ObjectId): Promise<Board | undefined> {
     return this.boardRepository.findOne({_id})
+  }
+
+  async getBoardPermissions(board: Board, user?: User, linkToken?: string): Promise<Permission[]> {
+    const allPermissions = Object.values(permissions).flatMap(entity => Object.values(entity))
+
+    if (user && board.userId.equals(user._id)) {
+      return allPermissions
+    }
+
+    if (!linkToken) {
+      return board.isPrivate ? [] : [BoardPermission.VIEW_BOARD]
+    }
+
+    const link = await this.boardLinkService.getBoardLinkByLink(linkToken)
+
+    if (!link) {
+      return board.isPrivate ? [] : [BoardPermission.VIEW_BOARD]
+    }
+
+    return user
+      ? link.permissions
+      : link.permissions.filter(perm =>
+          [Permission.VIEW_BOARD, Permission.VIEW_EVENT, Permission.VIEW_BOARD_LINK].includes(perm),
+        )
   }
 
   async dashboard(user: User | undefined): Promise<Board[] | undefined> {
