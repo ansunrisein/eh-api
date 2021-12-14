@@ -4,6 +4,7 @@ import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
 import {Event} from '../event/model'
 import {BoardLink, Permission} from '../board-link/model'
+import {Sub} from '../sub/model'
 
 @ObjectType()
 @Entity({name: 'boards'})
@@ -28,6 +29,9 @@ export class Board extends BaseEntity {
 
   @Field(() => [Event])
   events?: Event[]
+
+  @Field(() => Sub, {nullable: true})
+  sub?: Sub
 
   @Field(() => [BoardLink])
   boardLinks?: BoardLink[]

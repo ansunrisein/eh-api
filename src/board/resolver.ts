@@ -14,6 +14,8 @@ import {BoardGuard} from './guards'
 import {BoardPermission} from './permissions'
 import {BoardService} from './service'
 import {Board, CreateBoard, UpdateBoard} from './model'
+import {Sub} from '../sub/model'
+import {SubService} from '../sub/service'
 import {InjectLinkToken} from '../auth/@InjectLinkToken'
 
 @Resolver(() => Board)
@@ -27,6 +29,9 @@ export class BoardResolver {
   @Inject(forwardRef(() => BoardLinkService))
   private boardLinkService!: BoardLinkService
 
+  @Inject(forwardRef(() => SubService))
+  private subService!: SubService
+
   @ResolveField('events', () => [Event])
   events(@Parent() board: Board) {
     return this.boardService.events(board._id)
@@ -35,6 +40,11 @@ export class BoardResolver {
   @ResolveField('user', () => User)
   user(@Parent() board: Board) {
     return this.userService.getUserById(board.userId)
+  }
+
+  @ResolveField('sub', () => Sub)
+  sub(@InjectUser() user: User | undefined, @Parent() board: Board) {
+    return this.subService.getSubByBoardAndUser({userId: user?._id, boardId: board._id})
   }
 
   @ResolveField('boardLinks', () => [BoardLink])

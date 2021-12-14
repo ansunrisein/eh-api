@@ -24,7 +24,12 @@ export class BoardService {
   static extractBoardId(context: ExecutionContext): ObjectId | undefined {
     const args = context.getArgByIndex(1)
 
-    const id = args.board?._id || args.boardId || args.event?.boardId || args.boardLink?.boardId
+    const id =
+      args.board?._id ||
+      args.boardId ||
+      args.event?.boardId ||
+      args.boardLink?.boardId ||
+      args.sub?.boardId
 
     if (id) {
       return id && new ObjectId(id)

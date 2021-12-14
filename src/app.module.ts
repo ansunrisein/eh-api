@@ -9,6 +9,7 @@ import {UserModule} from './user/module'
 import {EventModule} from './event/module'
 import {BoardModule} from './board/module'
 import {BoardLinkModule} from './board-link/module'
+import {SubModule} from './sub/module'
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import {BoardLinkModule} from './board-link/module'
     EventModule,
     BoardModule,
     BoardLinkModule,
+    SubModule,
   ],
   providers: [
     {
