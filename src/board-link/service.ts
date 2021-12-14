@@ -31,8 +31,7 @@ export class BoardLinkService {
   }
 
   static extractLinkToken(context: ExecutionContext): string | undefined {
-    const args = context.getArgByIndex(1)
-    return args.linkToken || args.boardLink?.token
+    return context.getArgByIndex(2).linkToken
   }
 
   async getPermissions(): Promise<EntityPermissions[]> {

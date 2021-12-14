@@ -46,7 +46,6 @@ export class BoardResolver {
   @UseGuards(BoardGuard.for(BoardPermission.VIEW_BOARD))
   board(
     @Args('boardId', {type: () => ID}, ParseObjectID) boardId: ObjectId,
-    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Board | undefined> {
     return this.boardService.board(boardId)
   }
@@ -61,7 +60,6 @@ export class BoardResolver {
   createBoard(
     @InjectUser() user: User,
     @Args('board') board: CreateBoard,
-    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Board | undefined> {
     return this.boardService.createBoard(user, board)
   }
@@ -70,7 +68,6 @@ export class BoardResolver {
   @UseGuards(BoardGuard.for(BoardPermission.REMOVE_BOARD))
   removeBoard(
     @Args('boardId', {type: () => ID}, ParseObjectID) boardId: ObjectId,
-    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Board | undefined> {
     return this.boardService.removeBoard(boardId)
   }
@@ -82,7 +79,6 @@ export class BoardResolver {
   )
   updateBoard(
     @Args('board', {type: () => UpdateBoard}, ParseObjectID.for(['_id'])) board: UpdateBoard,
-    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ): Promise<Board | undefined> {
     return this.boardService.updateBoard(board)
   }

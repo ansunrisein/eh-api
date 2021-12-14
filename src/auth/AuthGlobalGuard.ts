@@ -11,6 +11,7 @@ export class AuthGlobalGuard implements CanActivate {
 
     graphqlContext.token = graphqlContext.req.header('Authorization')?.slice(7)
     graphqlContext.user = await this.authService.authenticate(graphqlContext.token)
+    graphqlContext.linkToken = graphqlContext.req.header('LinkToken')
 
     return true
   }

@@ -29,19 +29,13 @@ export class BoardLinkResolver {
 
   @Query(() => BoardLink, {nullable: true})
   @UseGuards(BoardLinkGuard.for(BoardLinkPermission.VIEW_BOARD_LINK))
-  boardLink(
-    @Args('boardLinkId', {type: () => ID}, ParseObjectID) boardLinkId: ObjectId,
-    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
-  ) {
+  boardLink(@Args('boardLinkId', {type: () => ID}, ParseObjectID) boardLinkId: ObjectId) {
     return this.boardLinkService.getBoardLink(boardLinkId)
   }
 
   @Query(() => [BoardLink])
   @UseGuards(BoardLinkGuard.for(BoardLinkPermission.VIEW_BOARD_LINK))
-  boardLinks(
-    @Args('boardId', {type: () => ID}, ParseObjectID) boardId: ObjectId,
-    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
-  ) {
+  boardLinks(@Args('boardId', {type: () => ID}, ParseObjectID) boardId: ObjectId) {
     return this.boardLinkService.getBoardLinksByBoardId(boardId)
   }
 
@@ -50,7 +44,6 @@ export class BoardLinkResolver {
   createBoardLink(
     @Args('boardLink', {type: () => CreateBoardLink}, ParseObjectID.for(['boardId']))
     boardLink: CreateBoardLink,
-    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ) {
     return this.boardLinkService.createBoardLink(boardLink)
   }
@@ -60,17 +53,13 @@ export class BoardLinkResolver {
   updateBoardLink(
     @Args('boardLink', {type: () => UpdateBoardLink}, ParseObjectID.for(['_id']))
     boardLink: UpdateBoardLink,
-    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
   ) {
     return this.boardLinkService.updateBoardLink(boardLink)
   }
 
   @Mutation(() => BoardLink)
   @UseGuards(BoardLinkGuard.for(BoardLinkPermission.REMOVE_BOARD_LINK))
-  removeBoardLink(
-    @Args('boardLinkId', {type: () => ID}, ParseObjectID) boardLinkId: ObjectId,
-    @Args('linkToken', {nullable: true, type: () => String}) linkToken: never,
-  ) {
+  removeBoardLink(@Args('boardLinkId', {type: () => ID}, ParseObjectID) boardLinkId: ObjectId) {
     return this.boardLinkService.removeBoard(boardLinkId)
   }
 }
