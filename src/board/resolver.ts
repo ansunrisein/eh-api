@@ -44,6 +44,11 @@ export class BoardResolver {
     return this.eventService.getEventsByBoardId(board._id, page)
   }
 
+  @ResolveField('eventsCount', () => Number)
+  eventsCount(@Parent() board: Board) {
+    return this.eventService.countEventsByBoardId(board._id)
+  }
+
   @ResolveField('user', () => User)
   user(@Parent() board: Board) {
     return this.userService.getUserById(board.userId)

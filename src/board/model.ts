@@ -39,6 +39,9 @@ export class Board extends BaseEntity {
 
   @Field(() => [Permission])
   permissions?: Permission[]
+
+  @Field(() => Number)
+  eventsCount!: number
 }
 
 @InputType()
