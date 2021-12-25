@@ -4,6 +4,7 @@ import {ExecutionContext, forwardRef, Inject, Injectable} from '@nestjs/common'
 import {CreateEvent, Event, UpdateEvent} from './model'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
+import {Page} from '../pagination/model'
 
 @Injectable()
 export class EventService {
@@ -20,8 +21,33 @@ export class EventService {
     return this.eventRepository.findOne({_id})
   }
 
-  async getEventsByBoardId(boardId: ObjectId): Promise<Event[]> {
-    return this.eventRepository.find({boardId})
+  async getEventsByBoardId(
+    boardId: ObjectId,
+    {first, after = new ObjectId('000000000000')}: Page,
+  ): Promise<Event[]> {
+    return this.eventRepository
+      .aggregateEntity([
+        {
+          $match: {
+            boardId,
+          },
+        },
+        {
+          $match: {
+            _id: {
+              $gt: after,
+            },
+          },
+        },
+        {
+          $limit: first,
+        },
+      ])
+      .toArray()
+  }
+
+  async countEventsByBoardId(boardId: ObjectId): Promise<number> {
+    return this.eventRepository.count({boardId})
   }
 
   async createEvent(user: User, event: CreateEvent): Promise<Event | undefined> {

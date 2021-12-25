@@ -3,20 +3,16 @@ import {MongoRepository} from 'typeorm'
 import {getRepositoryToken} from '@nestjs/typeorm'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
-import {Event} from '../event/model'
-import {EventService} from '../event/service'
 import {Board, CreateBoard, UpdateBoard} from './model'
 import {Permission, permissions} from '../board-link/model'
 import {BoardLinkService} from '../board-link/service'
 import {BoardPermission} from './permissions'
+import {Page} from '../pagination/model'
 
 @Injectable()
 export class BoardService {
   @Inject(forwardRef(() => getRepositoryToken(Board)))
   private boardRepository!: MongoRepository<Board>
-
-  @Inject(forwardRef(() => EventService))
-  private eventService!: EventService
 
   @Inject(forwardRef(() => BoardLinkService))
   private boardLinkService!: BoardLinkService
@@ -70,35 +66,48 @@ export class BoardService {
         )
   }
 
-  async dashboard(user: User | undefined): Promise<Board[] | undefined> {
-    if (!user) {
-      return this.boardRepository
-        .aggregateEntity([
-          {
-            $match: {isPrivate: false},
-          },
-          {
-            $lookup: {
-              from: 'events',
-              localField: '_id',
-              foreignField: 'boardId',
-              as: 'events',
+  async dashboard(
+    user: User | undefined,
+    {first, after = new ObjectId('000000000000')}: Page,
+  ): Promise<Board[] | undefined> {
+    const pipeline = [
+      ...(user
+        ? [
+            {
+              $match: {
+                userId: user._id,
+              },
             },
-          },
-          {
-            $match: {
-              'events.0': {$exists: true},
+          ]
+        : [
+            {
+              $match: {
+                isPrivate: false,
+              },
             },
-          },
-        ])
-        .toArray()
-    }
+            {
+              $lookup: {
+                from: 'events',
+                localField: '_id',
+                foreignField: 'boardId',
+                as: 'events',
+              },
+            },
+            {
+              $match: {
+                'events.0': {$exists: true},
+              },
+            },
+          ]),
+      {
+        $match: {_id: {$gt: after}},
+      },
+      {
+        $limit: first,
+      },
+    ]
 
-    return this.boardRepository.find({userId: user._id})
-  }
-
-  async events(boardId: ObjectId): Promise<Event[]> {
-    return this.eventService.getEventsByBoardId(boardId)
+    return this.boardRepository.aggregateEntity(pipeline).toArray()
   }
 
   async createBoard(user: User, board: CreateBoard): Promise<Board | undefined> {

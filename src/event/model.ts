@@ -1,6 +1,7 @@
 import {BaseEntity, Column, Entity, ObjectIdColumn} from 'typeorm'
 import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
-import {ObjectId} from 'mongodb'
+import {ObjectID, ObjectId} from 'mongodb'
+import {Connection} from '../pagination/model'
 
 @ObjectType()
 @Entity({name: 'events'})
@@ -22,6 +23,21 @@ export class Event extends BaseEntity {
   @Field(() => String)
   @Column()
   content!: string
+}
+
+@ObjectType()
+export class EventEdge {
+  @Field(() => ID)
+  cursor!: ObjectID
+
+  @Field(() => Event)
+  node!: Event
+}
+
+@ObjectType()
+export class EventConnection extends Connection<Event> {
+  @Field(() => [EventEdge])
+  edges!: EventEdge[]
 }
 
 @InputType()

@@ -1,13 +1,21 @@
 import {Args, ID, Mutation, Parent, Query, ResolveField, Resolver} from '@nestjs/graphql'
-import {forwardRef, Inject, UseGuards} from '@nestjs/common'
+import {forwardRef, Inject, UseGuards, UseInterceptors} from '@nestjs/common'
 import {ObjectId} from 'mongodb'
 import {Board} from '../board/model'
 import {BoardService} from '../board/service'
 import {ParseObjectID} from '../shared/pipes'
-import {BoardLink, CreateBoardLink, EntityPermissions, UpdateBoardLink} from './model'
+import {
+  BoardLink,
+  BoardLinkConnection,
+  CreateBoardLink,
+  EntityPermissions,
+  UpdateBoardLink,
+} from './model'
 import {BoardLinkService} from './service'
 import {BoardLinkGuard} from './guards'
 import {BoardLinkPermission} from './permissions'
+import {Page} from '../pagination/model'
+import {ConnectionInterceptor} from '../pagination/interceptors'
 
 @Resolver(() => BoardLink)
 export class BoardLinkResolver {
@@ -33,10 +41,14 @@ export class BoardLinkResolver {
     return this.boardLinkService.getBoardLink(boardLinkId)
   }
 
-  @Query(() => [BoardLink])
+  @Query(() => BoardLinkConnection)
   @UseGuards(BoardLinkGuard.for(BoardLinkPermission.VIEW_BOARD_LINK))
-  boardLinks(@Args('boardId', {type: () => ID}, ParseObjectID) boardId: ObjectId) {
-    return this.boardLinkService.getBoardLinksByBoardId(boardId)
+  @UseInterceptors(ConnectionInterceptor)
+  boardLinks(
+    @Args('boardId', {type: () => ID}, ParseObjectID) boardId: ObjectId,
+    @Args('page') page: Page,
+  ) {
+    return this.boardLinkService.getBoardLinksByBoardId(boardId, page)
   }
 
   @Mutation(() => BoardLink)

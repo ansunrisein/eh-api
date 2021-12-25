@@ -2,9 +2,10 @@ import {BaseEntity, Column, Entity, ObjectIdColumn} from 'typeorm'
 import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
-import {Event} from '../event/model'
-import {BoardLink, Permission} from '../board-link/model'
+import {EventConnection} from '../event/model'
+import {BoardLinkConnection, Permission} from '../board-link/model'
 import {Sub} from '../sub/model'
+import {Connection} from '../pagination/model'
 
 @ObjectType()
 @Entity({name: 'boards'})
@@ -27,14 +28,14 @@ export class Board extends BaseEntity {
   @Column()
   isPrivate!: boolean
 
-  @Field(() => [Event])
-  events?: Event[]
+  @Field(() => EventConnection)
+  events?: EventConnection
 
   @Field(() => Sub, {nullable: true})
   sub?: Sub
 
-  @Field(() => [BoardLink])
-  boardLinks?: BoardLink[]
+  @Field(() => BoardLinkConnection)
+  boardLinks?: BoardLinkConnection
 
   @Field(() => [Permission])
   permissions?: Permission[]
@@ -59,4 +60,19 @@ export class UpdateBoard {
 
   @Field(() => Boolean)
   isPrivate!: boolean
+}
+
+@ObjectType()
+export class BoardEdge {
+  @Field(() => ID)
+  cursor!: ObjectId
+
+  @Field(() => Board)
+  node!: Board
+}
+
+@ObjectType()
+export class BoardConnection extends Connection<Board> {
+  @Field(() => [BoardEdge])
+  edges!: BoardEdge[]
 }

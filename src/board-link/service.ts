@@ -12,6 +12,7 @@ import {
 } from './model'
 import {randomUUID} from 'crypto'
 import {constantCase} from 'change-case'
+import {Page} from '../pagination/model'
 
 @Injectable()
 export class BoardLinkService {
@@ -46,8 +47,13 @@ export class BoardLinkService {
     }))
   }
 
-  async getBoardLinksByBoardId(boardId: ObjectId): Promise<BoardLink[]> {
-    return this.boardLinkRepository.find({boardId})
+  async getBoardLinksByBoardId(
+    boardId: ObjectId,
+    {first, after = new ObjectId('000000000000')}: Page,
+  ): Promise<BoardLink[]> {
+    return this.boardLinkRepository
+      .aggregateEntity([{$match: {boardId}}, {$match: {_id: {$gt: after}}}, {$limit: first}])
+      .toArray()
   }
 
   async getBoardLink(_id: ObjectId): Promise<BoardLink | undefined> {

@@ -5,6 +5,7 @@ import {Board} from '../board/model'
 import {BoardPermission} from '../board/permissions'
 import {BoardLinkPermission} from './permissions'
 import {EventPermission} from '../event/permissions'
+import {Connection} from '../pagination/model'
 
 const AvailableBoardPermission: Omit<
   Record<keyof typeof BoardPermission, BoardPermission>,
@@ -72,6 +73,21 @@ export class BoardLink extends BaseEntity {
 
   @Field(() => Board)
   board?: Board
+}
+
+@ObjectType()
+export class BoardLinkEdge {
+  @Field(() => ID)
+  cursor!: ObjectId
+
+  @Field(() => BoardLink)
+  node!: BoardLink
+}
+
+@ObjectType()
+export class BoardLinkConnection extends Connection<BoardLink> {
+  @Field(() => [BoardLinkEdge])
+  edges!: BoardLinkEdge[]
 }
 
 @InputType()

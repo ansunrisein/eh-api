@@ -1,21 +1,24 @@
 import {Args, ID, Mutation, Parent, Query, ResolveField, Resolver} from '@nestjs/graphql'
-import {forwardRef, Inject, UseGuards} from '@nestjs/common'
+import {forwardRef, Inject, UseGuards, UseInterceptors} from '@nestjs/common'
 import {ObjectId} from 'mongodb'
 import {ParseObjectID} from '../shared/pipes'
 import {InjectUser} from '../auth/@InjectUser'
 import {User} from '../user/model'
-import {Event} from '../event/model'
+import {EventConnection} from '../event/model'
 import {UserService} from '../user/service'
-import {BoardLink, Permission} from '../board-link/model'
+import {BoardLinkConnection, Permission} from '../board-link/model'
 import {BoardLinkService} from '../board-link/service'
 import {BoardLinkGuard} from '../board-link/guards'
 import {BoardLinkPermission} from '../board-link/permissions'
 import {BoardGuard} from './guards'
 import {BoardPermission} from './permissions'
 import {BoardService} from './service'
-import {Board, CreateBoard, UpdateBoard} from './model'
+import {Board, BoardConnection, CreateBoard, UpdateBoard} from './model'
 import {Sub} from '../sub/model'
 import {SubService} from '../sub/service'
+import {ConnectionInterceptor} from '../pagination/interceptors'
+import {Page} from '../pagination/model'
+import {EventService} from '../event/service'
 import {InjectLinkToken} from '../auth/@InjectLinkToken'
 
 @Resolver(() => Board)
@@ -29,12 +32,16 @@ export class BoardResolver {
   @Inject(forwardRef(() => BoardLinkService))
   private boardLinkService!: BoardLinkService
 
+  @Inject(forwardRef(() => EventService))
+  private eventService!: EventService
+
   @Inject(forwardRef(() => SubService))
   private subService!: SubService
 
-  @ResolveField('events', () => [Event])
-  events(@Parent() board: Board) {
-    return this.boardService.events(board._id)
+  @ResolveField('events', () => EventConnection)
+  @UseInterceptors(ConnectionInterceptor)
+  events(@Parent() board: Board, @Args('page') page: Page) {
+    return this.eventService.getEventsByBoardId(board._id, page)
   }
 
   @ResolveField('user', () => User)
@@ -47,10 +54,11 @@ export class BoardResolver {
     return this.subService.getSubByBoardAndUser({userId: user?._id, boardId: board._id})
   }
 
-  @ResolveField('boardLinks', () => [BoardLink])
+  @ResolveField('boardLinks', () => BoardLinkConnection)
   @UseGuards(BoardLinkGuard.for(BoardLinkPermission.VIEW_BOARD_LINK))
-  boardLinks(@Parent() board: Board) {
-    return this.boardLinkService.getBoardLinksByBoardId(board._id)
+  @UseInterceptors(ConnectionInterceptor)
+  boardLinks(@Parent() board: Board, @Args('page') page: Page) {
+    return this.boardLinkService.getBoardLinksByBoardId(board._id, page)
   }
 
   @ResolveField('permissions', () => [Permission])
@@ -70,9 +78,13 @@ export class BoardResolver {
     return this.boardService.board(boardId)
   }
 
-  @Query(() => [Board])
-  async dashboard(@InjectUser() user: User | undefined): Promise<Board[] | undefined> {
-    return await this.boardService.dashboard(user)
+  @Query(() => BoardConnection)
+  @UseInterceptors(ConnectionInterceptor)
+  dashboard(
+    @InjectUser() user: User | undefined,
+    @Args('page') page: Page,
+  ): Promise<Board[] | undefined> {
+    return this.boardService.dashboard(user, page)
   }
 
   @Mutation(() => Board)
