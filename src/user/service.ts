@@ -20,4 +20,14 @@ export class UserService {
   async getUserById(_id: ObjectId): Promise<User | undefined> {
     return this.userRepository.findOne({_id})
   }
+
+  async updateProfile(nickname: string, name: string | undefined, user: User): Promise<User> {
+    await this.userRepository.update({_id: user._id}, {nickname, name})
+    return User.merge(user, {nickname, name})
+  }
+
+  async updateAvatar(avatar: string | undefined, user: User) {
+    await this.userRepository.update({_id: user._id}, {avatar})
+    return User.merge(user, {avatar})
+  }
 }
