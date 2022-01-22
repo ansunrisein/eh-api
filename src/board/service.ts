@@ -3,7 +3,7 @@ import {MongoRepository} from 'typeorm'
 import {getRepositoryToken} from '@nestjs/typeorm'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
-import {Board, CreateBoard, UpdateBoard} from './model'
+import {Board, CreateBoard, UpdateBoardDescription, UpdateBoardVisibility} from './model'
 import {Permission, permissions} from '../board-link/model'
 import {BoardLinkService} from '../board-link/service'
 import {BoardPermission} from './permissions'
@@ -117,7 +117,9 @@ export class BoardService {
     })
   }
 
-  async updateBoard(board: UpdateBoard): Promise<Board | undefined> {
+  async updateBoard(
+    board: UpdateBoardVisibility | UpdateBoardDescription,
+  ): Promise<Board | undefined> {
     const oldBoard = await this.boardRepository.findOne({_id: board._id})
 
     if (!oldBoard) {

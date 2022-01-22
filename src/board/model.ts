@@ -54,12 +54,18 @@ export class CreateBoard {
 }
 
 @InputType()
-export class UpdateBoard {
+export class UpdateBoardDescription {
   @Field(() => ID)
   _id!: ObjectId
 
   @Field(() => String)
   title!: string
+}
+
+@InputType()
+export class UpdateBoardVisibility {
+  @Field(() => ID)
+  _id!: ObjectId
 
   @Field(() => Boolean)
   isPrivate!: boolean

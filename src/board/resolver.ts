@@ -13,7 +13,13 @@ import {BoardLinkPermission} from '../board-link/permissions'
 import {BoardGuard} from './guards'
 import {BoardPermission} from './permissions'
 import {BoardService} from './service'
-import {Board, BoardConnection, CreateBoard, UpdateBoard} from './model'
+import {
+  Board,
+  BoardConnection,
+  CreateBoard,
+  UpdateBoardDescription,
+  UpdateBoardVisibility,
+} from './model'
 import {Sub} from '../sub/model'
 import {SubService} from '../sub/service'
 import {ConnectionInterceptor} from '../pagination/interceptors'
@@ -110,13 +116,20 @@ export class BoardResolver {
   }
 
   @Mutation(() => Board)
-  @UseGuards(
-    BoardGuard.for(BoardPermission.UPDATE_BOARD_DESCRIPTION),
-    BoardGuard.for(BoardPermission.UPDATE_BOARD_VISIBILITY),
-  )
-  updateBoard(
-    @Args('board', {type: () => UpdateBoard}, ParseObjectID.for(['_id'])) board: UpdateBoard,
+  @UseGuards(BoardGuard.for(BoardPermission.UPDATE_BOARD_VISIBILITY))
+  updateBoardVisibility(
+    @Args('board', {type: () => UpdateBoardVisibility}, ParseObjectID.for(['_id']))
+    board: UpdateBoardVisibility,
   ): Promise<Board | undefined> {
+    return this.boardService.updateBoard(board)
+  }
+
+  @Mutation(() => Board)
+  @UseGuards(BoardGuard.for(BoardPermission.UPDATE_BOARD_DESCRIPTION))
+  updateBoardDescription(
+    @Args('board', {type: () => UpdateBoardDescription}, ParseObjectID.for(['_id']))
+    board: UpdateBoardDescription,
+  ) {
     return this.boardService.updateBoard(board)
   }
 }
