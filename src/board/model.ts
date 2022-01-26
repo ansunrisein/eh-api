@@ -24,6 +24,10 @@ export class Board extends BaseEntity {
   @Column()
   title!: string
 
+  @Field(() => String, {nullable: true})
+  @Column()
+  description?: string
+
   @Field(() => Boolean)
   @Column()
   isPrivate!: boolean
@@ -49,6 +53,9 @@ export class CreateBoard {
   @Field(() => String)
   title!: string
 
+  @Field(() => String, {nullable: true})
+  description?: string
+
   @Field(() => Boolean)
   isPrivate!: boolean
 }
@@ -60,6 +67,9 @@ export class UpdateBoardDescription {
 
   @Field(() => String)
   title!: string
+
+  @Field(() => String, {nullable: true})
+  description?: string
 }
 
 @InputType()
