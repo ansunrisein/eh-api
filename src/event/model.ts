@@ -23,6 +23,10 @@ export class Event extends BaseEntity {
   @Field(() => String)
   @Column()
   content!: string
+
+  @Field(() => Date, {nullable: true})
+  @Column()
+  deadline?: Date
 }
 
 @ObjectType()
@@ -42,13 +46,17 @@ export class EventConnection extends Connection<Event> {
 
 @InputType()
 export class CreateEvent extends BaseEntity {
-  @Column()
   @Field(() => ID)
+  @Column()
   boardId!: ObjectId
 
   @Field(() => String, {nullable: true})
   @Column()
   title?: string
+
+  @Field(() => Date, {nullable: true})
+  @Column()
+  deadline?: Date
 
   @Column()
   @Field(() => String)
@@ -65,7 +73,11 @@ export class UpdateEvent extends BaseEntity {
   @Column()
   title?: string
 
-  @Column()
   @Field(() => String)
+  @Column()
   content!: string
+
+  @Field(() => Date, {nullable: true})
+  @Column()
+  deadline?: Date
 }
