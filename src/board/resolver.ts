@@ -129,7 +129,7 @@ export class BoardResolver {
   updateBoardDescription(
     @Args('board', {type: () => UpdateBoardDescription}, ParseObjectID.for(['_id']))
     board: UpdateBoardDescription,
-  ) {
+  ): Promise<Board | undefined> {
     return this.boardService.updateBoard(board)
   }
 }
