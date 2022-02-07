@@ -46,6 +46,9 @@ export class Board extends BaseEntity {
 
   @Field(() => Number)
   eventsCount!: number
+
+  @Field(() => Boolean)
+  isFavorite!: boolean
 }
 
 @InputType()

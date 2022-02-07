@@ -51,6 +51,19 @@ export class BoardService {
     return this.boardRepository.findOne({_id})
   }
 
+  async isFavoriteBoard(board: Board, user?: User): Promise<boolean | undefined> {
+    if (!user) {
+      return false
+    }
+
+    const fav = await this.favoriteBoardRepository.findOne({
+      boardId: board._id,
+      userId: user._id,
+    })
+
+    return !!fav
+  }
+
   async getBoardPermissions(board: Board, user?: User, linkToken?: string): Promise<Permission[]> {
     const allPermissions = Object.values(permissions).flatMap(entity => Object.values(entity))
 
