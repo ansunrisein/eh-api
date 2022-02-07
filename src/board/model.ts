@@ -149,7 +149,7 @@ export class BoardsSort {
   favorite?: BoardSort
 
   @Field(() => String, {nullable: true})
-  pin?: string
+  pin?: BoardSort
 }
 
 @InputType()
@@ -158,5 +158,5 @@ export class BoardsFilter {
   favorite?: BoardFilter
 
   @Field(() => Int, {nullable: true})
-  pin?: number
+  pin?: BoardFilter
 }
