@@ -124,7 +124,7 @@ export class FavoriteBoard extends BaseEntity {
 @InputType()
 export class BoardsSort {
   @Field(() => String, {nullable: true})
-  nearestEvent?: string
+  nearestEvent?: BoardSort
 
   @Field(() => String, {nullable: true})
   favorite?: BoardSort

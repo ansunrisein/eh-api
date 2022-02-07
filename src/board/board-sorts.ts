@@ -58,3 +58,57 @@ export const makeSortByIsFavoritePipeline = ({
     },
   ]
 }
+
+export const makeSortByNearestEventPipeline = ({sort = 'none'}: {sort?: BoardSort}) => {
+  const nearestEvent = mapSortStateToState(sort)
+
+  if (!nearestEvent) {
+    return []
+  }
+
+  return [
+    {
+      $lookup: {
+        from: 'events',
+        let: {
+          boardId: '$_id',
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  {
+                    $eq: ['$boardId', '$$boardId'],
+                  },
+                  {
+                    $gt: ['$deadline', new Date()],
+                  },
+                ],
+              },
+            },
+          },
+          {
+            $sort: {
+              deadline: 1,
+            },
+          },
+        ],
+        as: 'events',
+      },
+    },
+    {
+      $addFields: {
+        hasEvents: {
+          $ne: ['$events', []],
+        },
+      },
+    },
+    {
+      $sort: {
+        hasEvents: -1,
+        'events.0.deadline': nearestEvent,
+      },
+    },
+  ]
+}

@@ -15,7 +15,7 @@ import {Permission, permissions} from '../board-link/model'
 import {BoardLinkService} from '../board-link/service'
 import {BoardPermission} from './permissions'
 import {Page} from '../pagination/model'
-import {makeSortByIsFavoritePipeline} from './board-sorts'
+import {makeSortByIsFavoritePipeline, makeSortByNearestEventPipeline} from './board-sorts'
 
 @Injectable()
 export class BoardService {
@@ -104,6 +104,7 @@ export class BoardService {
               },
             },
             ...makeSortByIsFavoritePipeline({userId: user?._id, sort: sort?.favorite}),
+            ...makeSortByNearestEventPipeline({sort: sort?.nearestEvent}),
           ]
         : [
             {
