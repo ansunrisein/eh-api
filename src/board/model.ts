@@ -1,4 +1,4 @@
-import {BaseEntity, Column, Entity, ObjectIdColumn} from 'typeorm'
+import {BaseEntity, Column, Entity, ObjectIdColumn, Unique} from 'typeorm'
 import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
@@ -6,6 +6,7 @@ import {EventConnection} from '../event/model'
 import {BoardLinkConnection, Permission} from '../board-link/model'
 import {Sub} from '../sub/model'
 import {Connection} from '../pagination/model'
+import {BoardSort} from './board-sorts'
 
 @ObjectType()
 @Entity({name: 'boards'})
@@ -118,4 +119,16 @@ export class FavoriteBoard extends BaseEntity {
 
   @Column()
   boardId!: ObjectId
+}
+
+@InputType()
+export class BoardsSort {
+  @Field(() => String, {nullable: true})
+  nearestEvent?: string
+
+  @Field(() => String, {nullable: true})
+  favorite?: BoardSort
+
+  @Field(() => String, {nullable: true})
+  pin?: string
 }

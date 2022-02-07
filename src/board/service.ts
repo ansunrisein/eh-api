@@ -5,6 +5,7 @@ import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
 import {
   Board,
+  BoardsSort,
   CreateBoard,
   FavoriteBoard,
   UpdateBoardDescription,
@@ -14,6 +15,7 @@ import {Permission, permissions} from '../board-link/model'
 import {BoardLinkService} from '../board-link/service'
 import {BoardPermission} from './permissions'
 import {Page} from '../pagination/model'
+import {makeSortByIsFavoritePipeline} from './board-sorts'
 
 @Injectable()
 export class BoardService {
@@ -91,6 +93,7 @@ export class BoardService {
   async dashboard(
     user: User | undefined,
     {first, after = new ObjectId('000000000000')}: Page,
+    sort?: BoardsSort,
   ): Promise<Board[] | undefined> {
     const pipeline = [
       ...(user
@@ -100,6 +103,7 @@ export class BoardService {
                 userId: user._id,
               },
             },
+            ...makeSortByIsFavoritePipeline({userId: user?._id, sort: sort?.favorite}),
           ]
         : [
             {

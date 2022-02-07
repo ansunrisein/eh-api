@@ -17,6 +17,7 @@ import {
   Board,
   BoardConnection,
   BoardId,
+  BoardsSort,
   CreateBoard,
   UpdateBoardDescription,
   UpdateBoardVisibility,
@@ -101,8 +102,9 @@ export class BoardResolver {
   dashboard(
     @InjectUser() user: User | undefined,
     @Args('page') page: Page,
+    @Args('sort', {nullable: true}) sort?: BoardsSort,
   ): Promise<Board[] | undefined> {
-    return this.boardService.dashboard(user, page)
+    return this.boardService.dashboard(user, page, sort)
   }
 
   @Mutation(() => Board)
