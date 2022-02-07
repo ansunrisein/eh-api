@@ -5,6 +5,7 @@ import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
 import {
   Board,
+  BoardsFilter,
   BoardsSort,
   CreateBoard,
   FavoriteBoard,
@@ -16,6 +17,7 @@ import {BoardLinkService} from '../board-link/service'
 import {BoardPermission} from './permissions'
 import {Page} from '../pagination/model'
 import {makeSortByIsFavoritePipeline, makeSortByNearestEventPipeline} from './board-sorts'
+import {makeFilterByIsFavoritePipeline} from './board-filter'
 
 @Injectable()
 export class BoardService {
@@ -94,6 +96,7 @@ export class BoardService {
     user: User | undefined,
     {first, after = new ObjectId('000000000000')}: Page,
     sort?: BoardsSort,
+    filter?: BoardsFilter,
   ): Promise<Board[] | undefined> {
     const pipeline = [
       ...(user
@@ -105,6 +108,7 @@ export class BoardService {
             },
             ...makeSortByIsFavoritePipeline({userId: user?._id, sort: sort?.favorite}),
             ...makeSortByNearestEventPipeline({sort: sort?.nearestEvent}),
+            ...makeFilterByIsFavoritePipeline({userId: user?._id, filter: filter?.favorite}),
           ]
         : [
             {

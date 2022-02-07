@@ -1,5 +1,5 @@
 import {BaseEntity, Column, Entity, ObjectIdColumn, Unique} from 'typeorm'
-import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
+import {Field, ID, InputType, Int, ObjectType} from '@nestjs/graphql'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
 import {EventConnection} from '../event/model'
@@ -7,6 +7,7 @@ import {BoardLinkConnection, Permission} from '../board-link/model'
 import {Sub} from '../sub/model'
 import {Connection} from '../pagination/model'
 import {BoardSort} from './board-sorts'
+import {BoardFilter} from './board-filter'
 
 @ObjectType()
 @Entity({name: 'boards'})
@@ -131,4 +132,13 @@ export class BoardsSort {
 
   @Field(() => String, {nullable: true})
   pin?: string
+}
+
+@InputType()
+export class BoardsFilter {
+  @Field(() => Int, {nullable: true})
+  favorite?: BoardFilter
+
+  @Field(() => Int, {nullable: true})
+  pin?: number
 }
