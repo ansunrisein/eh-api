@@ -16,6 +16,7 @@ import {BoardService} from './service'
 import {
   Board,
   BoardConnection,
+  BoardId,
   CreateBoard,
   UpdateBoardDescription,
   UpdateBoardVisibility,
@@ -26,6 +27,7 @@ import {ConnectionInterceptor} from '../pagination/interceptors'
 import {Page} from '../pagination/model'
 import {EventService} from '../event/service'
 import {InjectLinkToken} from '../auth/@InjectLinkToken'
+import {AuthGuard} from '../auth/AuthGuard'
 
 @Resolver(() => Board)
 export class BoardResolver {
@@ -131,5 +133,23 @@ export class BoardResolver {
     board: UpdateBoardDescription,
   ): Promise<Board | undefined> {
     return this.boardService.updateBoard(board)
+  }
+
+  @Mutation(() => Board)
+  @UseGuards(AuthGuard, BoardGuard.for(BoardPermission.VIEW_BOARD))
+  markBoardAsFavorite(
+    @InjectUser() user: User,
+    @Args('board', {type: () => BoardId}, ParseObjectID.for(['_id'])) board: BoardId,
+  ): Promise<Board | undefined> {
+    return this.boardService.setBoardFavorite(user._id, board._id)
+  }
+
+  @Mutation(() => Board)
+  @UseGuards(AuthGuard, BoardGuard.for(BoardPermission.VIEW_BOARD))
+  unmarkBoardAsFavorite(
+    @InjectUser() user: User,
+    @Args('board', {type: () => BoardId}, ParseObjectID.for(['_id'])) board: BoardId,
+  ): Promise<Board | undefined> {
+    return this.boardService.unsetBoardFavorite(user._id, board._id)
   }
 }

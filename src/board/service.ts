@@ -3,7 +3,13 @@ import {MongoRepository} from 'typeorm'
 import {getRepositoryToken} from '@nestjs/typeorm'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
-import {Board, CreateBoard, UpdateBoardDescription, UpdateBoardVisibility} from './model'
+import {
+  Board,
+  CreateBoard,
+  FavoriteBoard,
+  UpdateBoardDescription,
+  UpdateBoardVisibility,
+} from './model'
 import {Permission, permissions} from '../board-link/model'
 import {BoardLinkService} from '../board-link/service'
 import {BoardPermission} from './permissions'
@@ -13,6 +19,9 @@ import {Page} from '../pagination/model'
 export class BoardService {
   @Inject(forwardRef(() => getRepositoryToken(Board)))
   private boardRepository!: MongoRepository<Board>
+
+  @Inject(forwardRef(() => getRepositoryToken(FavoriteBoard)))
+  private favoriteBoardRepository!: MongoRepository<FavoriteBoard>
 
   @Inject(forwardRef(() => BoardLinkService))
   private boardLinkService!: BoardLinkService
@@ -136,5 +145,18 @@ export class BoardService {
     const board = await this.boardRepository.findOne({_id})
     await this.boardRepository.deleteOne({_id})
     return board
+  }
+
+  async setBoardFavorite(userId: ObjectId, boardId: ObjectId): Promise<Board | undefined> {
+    await this.favoriteBoardRepository.save({
+      userId,
+      boardId,
+    })
+    return this.board(boardId)
+  }
+
+  async unsetBoardFavorite(userId: ObjectId, boardId: ObjectId): Promise<Board | undefined> {
+    await this.favoriteBoardRepository.deleteOne({userId, boardId})
+    return this.board(boardId)
   }
 }

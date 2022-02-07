@@ -81,6 +81,12 @@ export class UpdateBoardVisibility {
   isPrivate!: boolean
 }
 
+@InputType()
+export class BoardId {
+  @Field(() => ID)
+  _id!: ObjectId
+}
+
 @ObjectType()
 export class BoardEdge {
   @Field(() => ID)
@@ -94,4 +100,19 @@ export class BoardEdge {
 export class BoardConnection extends Connection<Board> {
   @Field(() => [BoardEdge])
   edges!: BoardEdge[]
+}
+
+@ObjectType()
+@Entity({name: 'favorite-boards'})
+@Unique('primary', ['userId', 'boardId'])
+export class FavoriteBoard extends BaseEntity {
+  @Field(() => ID)
+  @ObjectIdColumn()
+  _id!: ObjectId
+
+  @Column()
+  userId!: ObjectId
+
+  @Column()
+  boardId!: ObjectId
 }

@@ -4,7 +4,7 @@ import {EventModule} from '../event/module'
 import {UserModule} from '../user/module'
 import {BoardResolver} from './resolver'
 import {BoardService} from './service'
-import {Board} from './model'
+import {Board, FavoriteBoard} from './model'
 import {BoardGuard} from './guards'
 import {BoardLinkModule} from '../board-link/module'
 import {SubModule} from '../sub/module'
@@ -12,6 +12,7 @@ import {SubModule} from '../sub/module'
 @Module({
   imports: [
     TypeOrmModule.forFeature([Board]),
+    TypeOrmModule.forFeature([FavoriteBoard]),
     forwardRef(() => EventModule),
     forwardRef(() => BoardLinkModule),
     forwardRef(() => SubModule),
