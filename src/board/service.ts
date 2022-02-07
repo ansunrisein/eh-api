@@ -9,6 +9,7 @@ import {
   BoardsSort,
   CreateBoard,
   FavoriteBoard,
+  PinBoard,
   UpdateBoardDescription,
   UpdateBoardVisibility,
 } from './model'
@@ -16,8 +17,12 @@ import {Permission, permissions} from '../board-link/model'
 import {BoardLinkService} from '../board-link/service'
 import {BoardPermission} from './permissions'
 import {Page} from '../pagination/model'
-import {makeSortByIsFavoritePipeline, makeSortByNearestEventPipeline} from './board-sorts'
-import {makeFilterByIsFavoritePipeline} from './board-filter'
+import {
+  makeSortByIsFavoritePipeline,
+  makeSortByIsPinPipeline,
+  makeSortByNearestEventPipeline,
+} from './board-sorts'
+import {makeFilterByIsFavoritePipeline, makeFilterByIsPinPipeline} from './board-filter'
 
 @Injectable()
 export class BoardService {
@@ -26,6 +31,9 @@ export class BoardService {
 
   @Inject(forwardRef(() => getRepositoryToken(FavoriteBoard)))
   private favoriteBoardRepository!: MongoRepository<FavoriteBoard>
+
+  @Inject(forwardRef(() => getRepositoryToken(PinBoard)))
+  private pinBoardRepository!: MongoRepository<PinBoard>
 
   @Inject(forwardRef(() => BoardLinkService))
   private boardLinkService!: BoardLinkService
@@ -66,6 +74,19 @@ export class BoardService {
     })
 
     return !!fav
+  }
+
+  async isPinBoard(board: Board, user?: User): Promise<boolean | undefined> {
+    if (!user) {
+      return false
+    }
+
+    const pin = await this.pinBoardRepository.findOne({
+      boardId: board._id,
+      userId: user._id,
+    })
+
+    return !!pin
   }
 
   async getBoardPermissions(board: Board, user?: User, linkToken?: string): Promise<Permission[]> {
@@ -179,6 +200,19 @@ export class BoardService {
 
   async unsetBoardFavorite(userId: ObjectId, boardId: ObjectId): Promise<Board | undefined> {
     await this.favoriteBoardRepository.deleteOne({userId, boardId})
+    return this.board(boardId)
+  }
+
+  async setBoardPin(userId: ObjectId, boardId: ObjectId): Promise<Board | undefined> {
+    await this.pinBoardRepository.save({
+      userId,
+      boardId,
+    })
+    return this.board(boardId)
+  }
+
+  async unsetBoardPin(userId: ObjectId, boardId: ObjectId): Promise<Board | undefined> {
+    await this.pinBoardRepository.deleteOne({userId, boardId})
     return this.board(boardId)
   }
 }

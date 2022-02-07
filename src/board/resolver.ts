@@ -64,6 +64,11 @@ export class BoardResolver {
     return this.boardService.isFavoriteBoard(board, user)
   }
 
+  @ResolveField('isPin', () => Boolean)
+  isPin(@InjectUser() user: User | undefined, @Parent() board: Board) {
+    return this.boardService.isPinBoard(board, user)
+  }
+
   @ResolveField('user', () => User)
   user(@Parent() board: Board) {
     return this.userService.getUserById(board.userId)
@@ -160,5 +165,23 @@ export class BoardResolver {
     @Args('board', {type: () => BoardId}, ParseObjectID.for(['_id'])) board: BoardId,
   ): Promise<Board | undefined> {
     return this.boardService.unsetBoardFavorite(user._id, board._id)
+  }
+
+  @Mutation(() => Board)
+  @UseGuards(AuthGuard, BoardGuard.for(BoardPermission.VIEW_BOARD))
+  markBoardAsPin(
+    @InjectUser() user: User,
+    @Args('board', {type: () => BoardId}, ParseObjectID.for(['_id'])) board: BoardId,
+  ): Promise<Board | undefined> {
+    return this.boardService.setBoardPin(user._id, board._id)
+  }
+
+  @Mutation(() => Board)
+  @UseGuards(AuthGuard, BoardGuard.for(BoardPermission.VIEW_BOARD))
+  unmarkBoardAsPin(
+    @InjectUser() user: User,
+    @Args('board', {type: () => BoardId}, ParseObjectID.for(['_id'])) board: BoardId,
+  ): Promise<Board | undefined> {
+    return this.boardService.unsetBoardPin(user._id, board._id)
   }
 }

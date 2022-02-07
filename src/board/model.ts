@@ -51,6 +51,9 @@ export class Board extends BaseEntity {
 
   @Field(() => Boolean)
   isFavorite!: boolean
+
+  @Field(() => Boolean)
+  isPin!: boolean
 }
 
 @InputType()
@@ -111,6 +114,21 @@ export class BoardConnection extends Connection<Board> {
 @Entity({name: 'favorite-boards'})
 @Unique('primary', ['userId', 'boardId'])
 export class FavoriteBoard extends BaseEntity {
+  @Field(() => ID)
+  @ObjectIdColumn()
+  _id!: ObjectId
+
+  @Column()
+  userId!: ObjectId
+
+  @Column()
+  boardId!: ObjectId
+}
+
+@ObjectType()
+@Entity({name: 'pin-boards'})
+@Unique('primary', ['userId', 'boardId'])
+export class PinBoard extends BaseEntity {
   @Field(() => ID)
   @ObjectIdColumn()
   _id!: ObjectId
