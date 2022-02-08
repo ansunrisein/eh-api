@@ -155,6 +155,9 @@ export class BoardsSort {
 @InputType()
 export class BoardsFilter {
   @Field(() => Int, {nullable: true})
+  ownership?: BoardFilter
+
+  @Field(() => Int, {nullable: true})
   favorite?: BoardFilter
 
   @Field(() => Int, {nullable: true})

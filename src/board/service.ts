@@ -22,7 +22,11 @@ import {
   makeSortByIsPinPipeline,
   makeSortByNearestEventPipeline,
 } from './board-sorts'
-import {makeFilterByIsFavoritePipeline, makeFilterByIsPinPipeline} from './board-filter'
+import {
+  makeFilterByIsFavoritePipeline,
+  makeFilterByIsPinPipeline,
+  makeFilterByOwnershipPipeline,
+} from './board-filter'
 
 @Injectable()
 export class BoardService {
@@ -123,10 +127,58 @@ export class BoardService {
       ...(user
         ? [
             {
-              $match: {
-                userId: user._id,
+              $lookup: {
+                from: 'subs',
+                as: 'subs',
+                let: {
+                  boardId: '$_id',
+                  userId: '$userId',
+                },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $or: [
+                          {
+                            $and: [
+                              {
+                                $eq: ['$$boardId', '$boardId'],
+                              },
+                              {
+                                $eq: ['$userId', user._id],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                  },
+                ],
               },
             },
+            {
+              $addFields: {
+                isSub: {
+                  $ne: ['$subs', []],
+                },
+                isMyBoard: {
+                  $eq: ['$userId', user._id],
+                },
+              },
+            },
+            {
+              $match: {
+                $or: [
+                  {
+                    isMyBoard: true,
+                  },
+                  {
+                    isSub: true,
+                  },
+                ],
+              },
+            },
+            ...makeFilterByOwnershipPipeline({userId: user._id, filter: filter?.ownership}),
             ...makeSortByIsFavoritePipeline({userId: user._id, sort: sort?.favorite}),
             ...makeSortByIsPinPipeline({userId: user._id, sort: sort?.pin}),
             ...makeSortByNearestEventPipeline({sort: sort?.nearestEvent}),
