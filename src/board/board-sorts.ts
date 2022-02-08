@@ -1,16 +1,12 @@
 import {ObjectId} from 'mongodb'
-
-export type BoardSort = 'asc' | 'desc' | 'none'
-
-export const mapSortStateToState = (state: BoardSort): number =>
-  state === 'none' ? 0 : state === 'desc' ? -1 : state === 'asc' ? 1 : NaN
+import {mapSortStateToState, Sort} from '../shared/sort'
 
 export const makeSortByIsFavoritePipeline = ({
   userId,
   sort = 'none',
 }: {
   userId?: ObjectId
-  sort?: BoardSort
+  sort?: Sort
 }) => {
   const favorite = mapSortStateToState(sort)
 
@@ -64,7 +60,7 @@ export const makeSortByIsPinPipeline = ({
   sort = 'none',
 }: {
   userId?: ObjectId
-  sort?: BoardSort
+  sort?: Sort
 }) => {
   const pin = mapSortStateToState(sort)
 
@@ -113,7 +109,7 @@ export const makeSortByIsPinPipeline = ({
   ]
 }
 
-export const makeSortByNearestEventPipeline = ({sort = 'none'}: {sort?: BoardSort}) => {
+export const makeSortByNearestEventPipeline = ({sort = 'none'}: {sort?: Sort}) => {
   const nearestEvent = mapSortStateToState(sort)
 
   if (!nearestEvent) {

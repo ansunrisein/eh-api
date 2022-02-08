@@ -6,8 +6,8 @@ import {EventConnection} from '../event/model'
 import {BoardLinkConnection, Permission} from '../board-link/model'
 import {Sub} from '../sub/model'
 import {Connection} from '../pagination/model'
-import {BoardSort} from './board-sorts'
 import {BoardFilter} from './board-filter'
+import {Sort} from '../shared/sort'
 
 @ObjectType()
 @Entity({name: 'boards'})
@@ -143,13 +143,13 @@ export class PinBoard extends BaseEntity {
 @InputType()
 export class BoardsSort {
   @Field(() => String, {nullable: true})
-  nearestEvent?: BoardSort
+  nearestEvent?: Sort
 
   @Field(() => String, {nullable: true})
-  favorite?: BoardSort
+  favorite?: Sort
 
   @Field(() => String, {nullable: true})
-  pin?: BoardSort
+  pin?: Sort
 }
 
 @InputType()

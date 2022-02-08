@@ -4,7 +4,7 @@ import {ObjectId} from 'mongodb'
 import {ParseObjectID} from '../shared/pipes'
 import {InjectUser} from '../auth/@InjectUser'
 import {User} from '../user/model'
-import {EventConnection} from '../event/model'
+import {EventConnection, EventsSort} from '../event/model'
 import {UserService} from '../user/service'
 import {BoardLinkConnection, Permission} from '../board-link/model'
 import {BoardLinkService} from '../board-link/service'
@@ -50,8 +50,12 @@ export class BoardResolver {
 
   @ResolveField('events', () => EventConnection)
   @UseInterceptors(ConnectionInterceptor)
-  events(@Parent() board: Board, @Args('page') page: Page) {
-    return this.eventService.getEventsByBoardId(board._id, page)
+  events(
+    @Parent() board: Board,
+    @Args('page') page: Page,
+    @Args('sort', {nullable: true}) sort?: EventsSort,
+  ) {
+    return this.eventService.getEventsByBoardId(board._id, page, sort)
   }
 
   @ResolveField('eventsCount', () => Number)
