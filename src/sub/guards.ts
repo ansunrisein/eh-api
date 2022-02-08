@@ -22,22 +22,19 @@ export class SubGuard implements CanActivate {
   boardGuard!: BoardGuard
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const subId = SubService.extractSubId(context)
     const userId = AuthService.extractUserId(context)
     const boardId = BoardService.extractBoardId(context)
     const linkToken = BoardLinkService.extractLinkToken(context)
 
-    return this.hasPermission({subId, userId, boardId, linkToken})
+    return this.hasPermission({userId, boardId, linkToken})
   }
 
   async hasPermission({
-    subId,
     userId,
     boardId,
     linkToken,
     permission = this.permission,
   }: {
-    subId?: ObjectId
     userId?: ObjectId
     boardId?: ObjectId
     linkToken?: string
@@ -72,11 +69,12 @@ export class SubGuard implements CanActivate {
       }
 
       case SubPermission.REMOVE_SUB: {
-        if (!subId || !userId) {
+        console.log(boardId, userId)
+        if (!boardId || !userId) {
           return false
         }
 
-        const sub = await this.subService.getSubById(subId)
+        const sub = await this.subService.getSubByBoardAndUser({boardId, userId})
 
         if (!sub) {
           return false

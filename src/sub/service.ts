@@ -3,11 +3,16 @@ import {getRepositoryToken} from '@nestjs/typeorm'
 import {MongoRepository} from 'typeorm'
 import {ObjectId} from 'mongodb'
 import {Sub} from './model'
+import {Board} from '../board/model'
+import {BoardService} from '../board/service'
 
 @Injectable()
 export class SubService {
   @Inject(forwardRef(() => getRepositoryToken(Sub)))
   private subRepository!: MongoRepository<Sub>
+
+  @Inject(forwardRef(() => BoardService))
+  private boardService!: BoardService
 
   static extractSubId(context: ExecutionContext): ObjectId | undefined {
     const args = context.getArgByIndex(1)
@@ -48,13 +53,13 @@ export class SubService {
     return this.subRepository.find({userId})
   }
 
-  async createSub(boardId: ObjectId, userId: ObjectId): Promise<Sub | undefined> {
-    return this.subRepository.save({boardId, userId})
+  async createSub(userId: ObjectId, boardId: ObjectId): Promise<Board | undefined> {
+    await this.subRepository.save({boardId, userId})
+    return this.boardService.board(boardId)
   }
 
-  async removeSub(_id: ObjectId): Promise<Sub | undefined> {
-    const sub = await this.subRepository.findOne({_id})
-    await this.subRepository.deleteOne({_id})
-    return sub
+  async removeSub(userId: ObjectId, boardId: ObjectId): Promise<Board | undefined> {
+    await this.subRepository.deleteOne({userId, boardId})
+    return this.boardService.board(boardId)
   }
 }
