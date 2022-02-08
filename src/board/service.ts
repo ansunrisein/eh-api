@@ -127,11 +127,11 @@ export class BoardService {
                 userId: user._id,
               },
             },
-            ...makeSortByIsFavoritePipeline({userId: user?._id, sort: sort?.favorite}),
-            ...makeSortByIsPinPipeline({userId: user?._id, sort: sort?.pin}),
+            ...makeSortByIsFavoritePipeline({userId: user._id, sort: sort?.favorite}),
+            ...makeSortByIsPinPipeline({userId: user._id, sort: sort?.pin}),
             ...makeSortByNearestEventPipeline({sort: sort?.nearestEvent}),
-            ...makeFilterByIsFavoritePipeline({userId: user?._id, filter: filter?.favorite}),
-            ...makeFilterByIsPinPipeline({userId: user?._id, filter: filter?.pin}),
+            ...makeFilterByIsFavoritePipeline({userId: user._id, filter: filter?.favorite}),
+            ...makeFilterByIsPinPipeline({userId: user._id, filter: filter?.pin}),
           ]
         : [
             {
