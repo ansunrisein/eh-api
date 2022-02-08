@@ -2,6 +2,7 @@ import {BaseEntity, Column, Entity, ObjectIdColumn} from 'typeorm'
 import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
 import {ObjectID, ObjectId} from 'mongodb'
 import {Connection} from '../pagination/model'
+import {Sort} from '../shared/sort'
 
 @ObjectType()
 @Entity({name: 'events'})
@@ -80,4 +81,13 @@ export class UpdateEvent extends BaseEntity {
   @Field(() => Date, {nullable: true})
   @Column()
   deadline?: Date
+}
+
+@InputType()
+export class EventsSort {
+  @Field(() => String, {nullable: true})
+  nearestEvent?: Sort
+
+  @Field(() => String, {nullable: true})
+  pin?: Sort
 }

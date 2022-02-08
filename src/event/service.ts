@@ -1,10 +1,11 @@
 import {MongoRepository} from 'typeorm'
 import {getRepositoryToken} from '@nestjs/typeorm'
 import {ExecutionContext, forwardRef, Inject, Injectable} from '@nestjs/common'
-import {CreateEvent, Event, UpdateEvent} from './model'
+import {CreateEvent, Event, EventsSort, UpdateEvent} from './model'
 import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
 import {Page} from '../pagination/model'
+import {makeSortByDeadlinePipeline} from './event-sort'
 
 @Injectable()
 export class EventService {
@@ -24,6 +25,7 @@ export class EventService {
   async getEventsByBoardId(
     boardId: ObjectId,
     {first, after = new ObjectId('000000000000')}: Page,
+    sort?: EventsSort,
   ): Promise<Event[]> {
     return this.eventRepository
       .aggregateEntity([
@@ -32,6 +34,7 @@ export class EventService {
             boardId,
           },
         },
+        ...makeSortByDeadlinePipeline({sort: sort?.nearestEvent}),
         {
           $match: {
             _id: {
