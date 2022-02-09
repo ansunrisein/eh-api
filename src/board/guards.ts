@@ -4,6 +4,7 @@ import {BoardService} from './service'
 import {BoardLinkService} from '../board-link/service'
 import {BoardPermission} from './permissions'
 import {AuthService} from '../auth/service'
+import {SubService} from '../sub/service'
 
 @Injectable()
 export class BoardGuard implements CanActivate {
@@ -14,6 +15,9 @@ export class BoardGuard implements CanActivate {
 
   @Inject(forwardRef(() => BoardLinkService))
   private boardLinkService!: BoardLinkService
+
+  @Inject(forwardRef(() => SubService))
+  private subService!: SubService
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const userId = AuthService.extractUserId(context)
@@ -57,6 +61,12 @@ export class BoardGuard implements CanActivate {
     }
 
     if (userId?.equals(board.userId)) {
+      return true
+    }
+
+    const sub = await this.subService.getSubByBoardAndUser({boardId: board._id, userId})
+
+    if (sub) {
       return true
     }
 
