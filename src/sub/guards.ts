@@ -69,7 +69,6 @@ export class SubGuard implements CanActivate {
       }
 
       case SubPermission.REMOVE_SUB: {
-        console.log(boardId, userId)
         if (!boardId || !userId) {
           return false
         }
