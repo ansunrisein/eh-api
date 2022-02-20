@@ -143,6 +143,9 @@ export const makeSortByNearestEventPipeline = ({sort = 'none'}: {sort?: Sort}) =
               deadline: 1,
             },
           },
+          {
+            $limit: 1,
+          },
         ],
         as: 'events',
       },
