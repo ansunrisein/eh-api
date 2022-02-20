@@ -54,8 +54,9 @@ export class BoardResolver {
     @Parent() board: Board,
     @Args('page') page: Page,
     @Args('sort', {nullable: true}) sort?: EventsSort,
+    @Args('filter', {nullable: true}) filter?: EventsFilter,
   ) {
-    return this.eventService.getEventsByBoardId(board._id, page, sort)
+    return this.eventService.getEventsByBoardId(board._id, page, sort, filter)
   }
 
   @ResolveField('eventsCount', () => Number)

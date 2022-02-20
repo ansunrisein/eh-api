@@ -1,8 +1,9 @@
 import {BaseEntity, Column, Entity, ObjectIdColumn} from 'typeorm'
-import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
+import {Field, ID, InputType, Int, ObjectType} from '@nestjs/graphql'
 import {ObjectId} from 'mongodb'
 import {Connection} from '../pagination/model'
 import {Sort} from '../shared/sort'
+import {EventFilter} from './event-filter'
 
 export type EventCursor = {
   _id: string | ObjectId
@@ -97,4 +98,10 @@ export class EventsSort {
 
   @Field(() => String, {nullable: true})
   pin?: Sort
+}
+
+@InputType()
+export class EventsFilter {
+  @Field(() => Int, {nullable: true})
+  expired?: EventFilter
 }
