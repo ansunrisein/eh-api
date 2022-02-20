@@ -172,3 +172,9 @@ export class BoardsFilter {
   @Field(() => Int, {nullable: true})
   pin?: BoardFilter
 }
+
+@InputType()
+export class BoardsSearch {
+  @Field(() => String, {nullable: true})
+  text?: string
+}

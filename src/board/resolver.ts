@@ -4,7 +4,7 @@ import {ObjectId} from 'mongodb'
 import {ParseObjectID} from '../shared/pipes'
 import {InjectUser} from '../auth/@InjectUser'
 import {User} from '../user/model'
-import {EventConnection, EventsSort} from '../event/model'
+import {EventConnection, EventsSort, EventsFilter} from '../event/model'
 import {UserService} from '../user/service'
 import {BoardLinkConnection, Permission} from '../board-link/model'
 import {BoardLinkService} from '../board-link/service'
@@ -18,6 +18,7 @@ import {
   BoardConnection,
   BoardId,
   BoardsFilter,
+  BoardsSearch,
   BoardsSort,
   CreateBoard,
   UpdateBoardDescription,
@@ -115,8 +116,9 @@ export class BoardResolver {
     @Args('page') page: Page,
     @Args('sort', {nullable: true}) sort?: BoardsSort,
     @Args('filter', {nullable: true}) filter?: BoardsFilter,
+    @Args('search', {nullable: true}) search?: BoardsSearch,
   ): Promise<Board[] | undefined> {
-    return this.boardService.dashboard(user, page, sort, filter)
+    return this.boardService.dashboard(user, page, sort, filter, search)
   }
 
   @Mutation(() => Board)

@@ -6,6 +6,7 @@ import {User} from '../user/model'
 import {
   Board,
   BoardsFilter,
+  BoardsSearch,
   BoardsSort,
   CreateBoard,
   FavoriteBoard,
@@ -28,6 +29,7 @@ import {
   makeFilterByOwnershipPipeline,
 } from './board-filter'
 import {makePaginationPipeline} from './board-cursor'
+import {makeSearchPipeline} from './board-search'
 
 @Injectable()
 export class BoardService {
@@ -123,9 +125,11 @@ export class BoardService {
     {first, after}: Page,
     sort?: BoardsSort,
     filter?: BoardsFilter,
+    search?: BoardsSearch,
   ): Promise<Board[] | undefined> {
     return this.boardRepository
       .aggregate<Board>([
+        ...makeSearchPipeline({text: search?.text}),
         ...(user
           ? [
               {
@@ -181,11 +185,11 @@ export class BoardService {
                 },
               },
               ...makeFilterByOwnershipPipeline({userId: user._id, filter: filter?.ownership}),
+              ...makeFilterByIsFavoritePipeline({userId: user._id, filter: filter?.favorite}),
+              ...makeFilterByIsPinPipeline({userId: user._id, filter: filter?.pin}),
               ...makeSortByIsFavoritePipeline({userId: user._id, sort: sort?.favorite}),
               ...makeSortByIsPinPipeline({userId: user._id, sort: sort?.pin}),
               ...makeSortByNearestEventPipeline({sort: sort?.nearestEvent}),
-              ...makeFilterByIsFavoritePipeline({userId: user._id, filter: filter?.favorite}),
-              ...makeFilterByIsPinPipeline({userId: user._id, filter: filter?.pin}),
             ]
           : [
               {
