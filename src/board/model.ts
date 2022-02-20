@@ -9,6 +9,13 @@ import {Connection} from '../pagination/model'
 import {BoardFilter} from './board-filter'
 import {Sort} from '../shared/sort'
 
+export type BoardCursor = {
+  _id: string
+  favorite?: boolean
+  pin?: boolean
+  nearestEvent?: Date
+}
+
 @ObjectType()
 @Entity({name: 'boards'})
 export class Board extends BaseEntity {
@@ -54,6 +61,8 @@ export class Board extends BaseEntity {
 
   @Field(() => Boolean)
   isPin!: boolean
+
+  _cursor?: BoardCursor
 }
 
 @InputType()
@@ -97,8 +106,8 @@ export class BoardId {
 
 @ObjectType()
 export class BoardEdge {
-  @Field(() => ID)
-  cursor!: ObjectId
+  @Field(() => String)
+  cursor!: string
 
   @Field(() => Board)
   node!: Board

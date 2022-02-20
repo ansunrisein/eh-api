@@ -1,13 +1,13 @@
-import {Field, ObjectType, ID, InputType, Int} from '@nestjs/graphql'
+import {Field, InputType, Int, ObjectType} from '@nestjs/graphql'
 import {ObjectID} from 'mongodb'
 
 @ObjectType()
 export class PageInfo {
-  @Field(() => ID, {nullable: true})
-  startCursor?: ObjectID
+  @Field(() => String, {nullable: true})
+  startCursor?: string
 
-  @Field(() => ID, {nullable: true})
-  endCursor?: ObjectID
+  @Field(() => String, {nullable: true})
+  endCursor?: string
 
   @Field(() => Boolean)
   hasNextPage!: boolean
@@ -20,7 +20,7 @@ export class PageInfo {
 export abstract class Connection<T extends {_id: ObjectID}> {
   abstract edges: {
     node: T
-    cursor: ObjectID
+    cursor: string
   }[]
 
   @Field(() => PageInfo)
@@ -29,8 +29,8 @@ export abstract class Connection<T extends {_id: ObjectID}> {
 
 @InputType()
 export class Page {
-  @Field(() => ID, {nullable: true})
-  after?: ObjectID
+  @Field(() => String, {nullable: true})
+  after?: string
 
   @Field(() => Int)
   first!: number

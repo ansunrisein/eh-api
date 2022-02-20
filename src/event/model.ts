@@ -1,8 +1,13 @@
 import {BaseEntity, Column, Entity, ObjectIdColumn} from 'typeorm'
 import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
-import {ObjectID, ObjectId} from 'mongodb'
+import {ObjectId} from 'mongodb'
 import {Connection} from '../pagination/model'
 import {Sort} from '../shared/sort'
+
+export type EventCursor = {
+  _id: string | ObjectId
+  deadline?: Date
+}
 
 @ObjectType()
 @Entity({name: 'events'})
@@ -28,12 +33,14 @@ export class Event extends BaseEntity {
   @Field(() => Date, {nullable: true})
   @Column()
   deadline?: Date
+
+  _cursor?: EventCursor
 }
 
 @ObjectType()
 export class EventEdge {
-  @Field(() => ID)
-  cursor!: ObjectID
+  @Field(() => String)
+  cursor!: string
 
   @Field(() => Event)
   node!: Event

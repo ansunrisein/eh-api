@@ -6,6 +6,7 @@ import {ObjectId} from 'mongodb'
 import {User} from '../user/model'
 import {Page} from '../pagination/model'
 import {makeSortByDeadlinePipeline} from './event-sort'
+import {makePaginationPipeline} from './event-cursor'
 
 @Injectable()
 export class EventService {
@@ -24,24 +25,18 @@ export class EventService {
 
   async getEventsByBoardId(
     boardId: ObjectId,
-    {first, after = new ObjectId('000000000000')}: Page,
+    {first, after}: Page,
     sort?: EventsSort,
   ): Promise<Event[]> {
     return this.eventRepository
-      .aggregateEntity([
+      .aggregate<Event>([
         {
           $match: {
             boardId,
           },
         },
         ...makeSortByDeadlinePipeline({sort: sort?.nearestEvent}),
-        {
-          $match: {
-            _id: {
-              $gt: after,
-            },
-          },
-        },
+        ...makePaginationPipeline({sort, after}),
         {
           $limit: first,
         },

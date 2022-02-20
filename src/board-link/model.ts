@@ -77,8 +77,8 @@ export class BoardLink extends BaseEntity {
 
 @ObjectType()
 export class BoardLinkEdge {
-  @Field(() => ID)
-  cursor!: ObjectId
+  @Field(() => String)
+  cursor!: string
 
   @Field(() => BoardLink)
   node!: BoardLink

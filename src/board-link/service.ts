@@ -49,10 +49,14 @@ export class BoardLinkService {
 
   async getBoardLinksByBoardId(
     boardId: ObjectId,
-    {first, after = new ObjectId('000000000000')}: Page,
+    {first, after = '000000000000'}: Page,
   ): Promise<BoardLink[]> {
     return this.boardLinkRepository
-      .aggregateEntity([{$match: {boardId}}, {$match: {_id: {$gt: after}}}, {$limit: first}])
+      .aggregateEntity([
+        {$match: {boardId}},
+        {$match: {_id: {$gt: new ObjectId(after)}}},
+        {$limit: first},
+      ])
       .toArray()
   }
 

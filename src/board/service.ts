@@ -27,6 +27,7 @@ import {
   makeFilterByIsPinPipeline,
   makeFilterByOwnershipPipeline,
 } from './board-filter'
+import {makePaginationPipeline} from './board-cursor'
 
 @Injectable()
 export class BoardService {
@@ -119,101 +120,99 @@ export class BoardService {
 
   async dashboard(
     user: User | undefined,
-    {first, after = new ObjectId('000000000000')}: Page,
+    {first, after}: Page,
     sort?: BoardsSort,
     filter?: BoardsFilter,
   ): Promise<Board[] | undefined> {
-    const pipeline = [
-      ...(user
-        ? [
-            {
-              $lookup: {
-                from: 'subs',
-                as: 'subs',
-                let: {
-                  boardId: '$_id',
-                  userId: '$userId',
-                },
-                pipeline: [
-                  {
-                    $match: {
-                      $expr: {
-                        $or: [
-                          {
-                            $and: [
-                              {
-                                $eq: ['$$boardId', '$boardId'],
-                              },
-                              {
-                                $eq: ['$userId', user._id],
-                              },
-                            ],
-                          },
-                        ],
+    return this.boardRepository
+      .aggregate<Board>([
+        ...(user
+          ? [
+              {
+                $lookup: {
+                  from: 'subs',
+                  as: 'subs',
+                  let: {
+                    boardId: '$_id',
+                    userId: '$userId',
+                  },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $or: [
+                            {
+                              $and: [
+                                {
+                                  $eq: ['$$boardId', '$boardId'],
+                                },
+                                {
+                                  $eq: ['$userId', user._id],
+                                },
+                              ],
+                            },
+                          ],
+                        },
                       },
                     },
-                  },
-                ],
-              },
-            },
-            {
-              $addFields: {
-                isSub: {
-                  $ne: ['$subs', []],
-                },
-                isMyBoard: {
-                  $eq: ['$userId', user._id],
+                  ],
                 },
               },
-            },
-            {
-              $match: {
-                $or: [
-                  {
-                    isMyBoard: true,
+              {
+                $addFields: {
+                  isSub: {
+                    $ne: ['$subs', []],
                   },
-                  {
-                    isSub: true,
+                  isMyBoard: {
+                    $eq: ['$userId', user._id],
                   },
-                ],
+                },
               },
-            },
-            ...makeFilterByOwnershipPipeline({userId: user._id, filter: filter?.ownership}),
-            ...makeSortByIsFavoritePipeline({userId: user._id, sort: sort?.favorite}),
-            ...makeSortByIsPinPipeline({userId: user._id, sort: sort?.pin}),
-            ...makeSortByNearestEventPipeline({sort: sort?.nearestEvent}),
-            ...makeFilterByIsFavoritePipeline({userId: user._id, filter: filter?.favorite}),
-            ...makeFilterByIsPinPipeline({userId: user._id, filter: filter?.pin}),
-          ]
-        : [
-            {
-              $match: {
-                isPrivate: false,
+              {
+                $match: {
+                  $or: [
+                    {
+                      isMyBoard: true,
+                    },
+                    {
+                      isSub: true,
+                    },
+                  ],
+                },
               },
-            },
-            {
-              $lookup: {
-                from: 'events',
-                localField: '_id',
-                foreignField: 'boardId',
-                as: 'events',
+              ...makeFilterByOwnershipPipeline({userId: user._id, filter: filter?.ownership}),
+              ...makeSortByIsFavoritePipeline({userId: user._id, sort: sort?.favorite}),
+              ...makeSortByIsPinPipeline({userId: user._id, sort: sort?.pin}),
+              ...makeSortByNearestEventPipeline({sort: sort?.nearestEvent}),
+              ...makeFilterByIsFavoritePipeline({userId: user._id, filter: filter?.favorite}),
+              ...makeFilterByIsPinPipeline({userId: user._id, filter: filter?.pin}),
+            ]
+          : [
+              {
+                $match: {
+                  isPrivate: false,
+                },
               },
-            },
-            {
-              $match: {
-                'events.0': {$exists: true},
+              {
+                $lookup: {
+                  from: 'events',
+                  localField: '_id',
+                  foreignField: 'boardId',
+                  as: 'events',
+                },
               },
-            },
-          ]),
-      {
-        $match: {_id: {$gt: after}},
-      },
-      {
-        $limit: first,
-      },
-    ]
-
-    return this.boardRepository.aggregateEntity(pipeline).toArray()
+              {
+                $match: {
+                  'events.0': {$exists: true},
+                },
+              },
+            ]),
+        ...makePaginationPipeline({sort, after}),
+        {
+          $limit: first,
+        },
+      ])
+      .toArray()
   }
 
   async createBoard(user: User, board: CreateBoard): Promise<Board | undefined> {
