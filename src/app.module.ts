@@ -10,6 +10,7 @@ import {EventModule} from './event/module'
 import {BoardModule} from './board/module'
 import {BoardLinkModule} from './board-link/module'
 import {SubModule} from './sub/module'
+import {BoardTagModule} from './board-tag/module'
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import {SubModule} from './sub/module'
     BoardModule,
     BoardLinkModule,
     SubModule,
+    BoardTagModule,
   ],
   providers: [
     {
