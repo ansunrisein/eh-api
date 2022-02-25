@@ -8,6 +8,7 @@ import {Sub} from '../sub/model'
 import {Connection} from '../pagination/model'
 import {BoardFilter} from './board-filter'
 import {Sort} from '../shared/sort'
+import {BoardTag} from '../board-tag/model'
 
 export type BoardCursor = {
   _id: string
@@ -41,6 +42,9 @@ export class Board extends BaseEntity {
   @Column()
   isPrivate!: boolean
 
+  @Column()
+  tagsIds?: ObjectId[]
+
   @Field(() => EventConnection)
   events?: EventConnection
 
@@ -62,6 +66,9 @@ export class Board extends BaseEntity {
   @Field(() => Boolean)
   isPin!: boolean
 
+  @Field(() => [BoardTag], {nullable: true})
+  tags?: BoardTag[]
+
   _cursor?: BoardCursor
 }
 
@@ -75,6 +82,9 @@ export class CreateBoard {
 
   @Field(() => Boolean)
   isPrivate!: boolean
+
+  @Field(() => [ID], {nullable: true})
+  tagsIds?: ObjectId[]
 }
 
 @InputType()
