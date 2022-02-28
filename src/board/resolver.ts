@@ -22,6 +22,7 @@ import {
   BoardsSort,
   CreateBoard,
   UpdateBoardDescription,
+  UpdateBoardTags,
   UpdateBoardVisibility,
 } from './model'
 import {Sub} from '../sub/model'
@@ -152,6 +153,15 @@ export class BoardResolver {
   updateBoardDescription(
     @Args('board', {type: () => UpdateBoardDescription}, ParseObjectID.for(['_id']))
     board: UpdateBoardDescription,
+  ): Promise<Board | undefined> {
+    return this.boardService.updateBoard(board)
+  }
+
+  @Mutation(() => Board)
+  @UseGuards(BoardGuard.for(BoardPermission.UPDATE_BOARD_DESCRIPTION))
+  updateBoardTags(
+    @Args('board', {type: () => UpdateBoardTags}, ParseObjectID.for(['_id']))
+    board: UpdateBoardTags,
   ): Promise<Board | undefined> {
     return this.boardService.updateBoard(board)
   }

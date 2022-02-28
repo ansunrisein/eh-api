@@ -12,6 +12,7 @@ import {
   FavoriteBoard,
   PinBoard,
   UpdateBoardDescription,
+  UpdateBoardTags,
   UpdateBoardVisibility,
 } from './model'
 import {Permission, permissions} from '../board-link/model'
@@ -227,7 +228,7 @@ export class BoardService {
   }
 
   async updateBoard(
-    board: UpdateBoardVisibility | UpdateBoardDescription,
+    board: UpdateBoardVisibility | UpdateBoardDescription | UpdateBoardTags,
   ): Promise<Board | undefined> {
     const oldBoard = await this.boardRepository.findOne({_id: board._id})
 

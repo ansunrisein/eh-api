@@ -109,6 +109,15 @@ export class UpdateBoardVisibility {
 }
 
 @InputType()
+export class UpdateBoardTags {
+  @Field(() => ID)
+  _id!: ObjectId
+
+  @Field(() => [ID], {nullable: true})
+  tagsIds?: ObjectId[]
+}
+
+@InputType()
 export class BoardId {
   @Field(() => ID)
   _id!: ObjectId
