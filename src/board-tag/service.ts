@@ -24,8 +24,6 @@ export class BoardTagService {
   }
 
   async getBoardTagsByIds(ids?: ObjectId[]): Promise<BoardTag[] | undefined> {
-    const ans = await this.boardTagRepository.findByIds(ids || [])
-    console.log(ans)
-    return ans
+    return await this.boardTagRepository.findByIds(ids || [])
   }
 }
