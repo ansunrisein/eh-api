@@ -8,6 +8,7 @@ import {Board, FavoriteBoard, PinBoard} from './model'
 import {BoardGuard} from './guards'
 import {BoardLinkModule} from '../board-link/module'
 import {SubModule} from '../sub/module'
+import {BoardTagModule} from '../board-tag/module'
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import {SubModule} from '../sub/module'
     TypeOrmModule.forFeature([PinBoard]),
     forwardRef(() => EventModule),
     forwardRef(() => BoardLinkModule),
+    forwardRef(() => BoardTagModule),
     forwardRef(() => SubModule),
     UserModule,
   ],

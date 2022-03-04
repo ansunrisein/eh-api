@@ -32,6 +32,8 @@ import {Page} from '../pagination/model'
 import {EventService} from '../event/service'
 import {InjectLinkToken} from '../auth/@InjectLinkToken'
 import {AuthGuard} from '../auth/AuthGuard'
+import {BoardTag} from '../board-tag/model'
+import {BoardTagService} from '../board-tag/service'
 
 @Resolver(() => Board)
 export class BoardResolver {
@@ -43,6 +45,9 @@ export class BoardResolver {
 
   @Inject(forwardRef(() => BoardLinkService))
   private boardLinkService!: BoardLinkService
+
+  @Inject(forwardRef(() => BoardTagService))
+  private boardTagService!: BoardTagService
 
   @Inject(forwardRef(() => EventService))
   private eventService!: EventService
@@ -91,6 +96,11 @@ export class BoardResolver {
   @UseInterceptors(ConnectionInterceptor)
   boardLinks(@Parent() board: Board, @Args('page') page: Page) {
     return this.boardLinkService.getBoardLinksByBoardId(board._id, page)
+  }
+
+  @ResolveField('tags', () => [BoardTag])
+  tags(@Parent() board: Board) {
+    return this.boardTagService.getBoardTagsByIds(board.tagsIds)
   }
 
   @ResolveField('permissions', () => [Permission])
