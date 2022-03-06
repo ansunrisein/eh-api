@@ -5,13 +5,13 @@ import {ObjectId} from 'mongodb'
 import {
   BoardLink,
   CreateBoardLink,
+  EntityName,
   EntityPermissions,
   Permission,
   permissions,
   UpdateBoardLink,
 } from './model'
 import {randomUUID} from 'crypto'
-import {constantCase} from 'change-case'
 import {Page} from '../pagination/model'
 
 @Injectable()
@@ -36,14 +36,9 @@ export class BoardLinkService {
   }
 
   async getPermissions(): Promise<EntityPermissions[]> {
-    return Object.entries(permissions).map(([entity, entityPermissions]) => ({
-      name: entity,
-      permissions: Object.entries(entityPermissions).map(([key, value]) => {
-        const name = constantCase(entity)
-        const regex = new RegExp(`(_${name})|(${name}_)`)
-        // TODO: fix types
-        return {value: key as Permission, name: (value as string).replace(regex, '')}
-      }),
+    return Object.entries(permissions).map(([name, permissions]) => ({
+      name: name as EntityName,
+      permissions: Object.keys(permissions) as Permission[],
     }))
   }
 

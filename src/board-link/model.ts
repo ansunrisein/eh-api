@@ -28,25 +28,19 @@ export type Permission =
   | Exclude<BoardPermission, BoardPermission.CREATE_BOARD>
   | EventPermission
 export const Permission = {...BoardLinkPermission, ...AvailableBoardPermission, ...EventPermission}
+export type EntityName = keyof typeof permissions
+export const EntityName = Object.keys(permissions).reduce((acc, key) => ({...acc, [key]: key}), {})
 
 registerEnumType(Permission, {name: 'Permission'})
-
-@ObjectType()
-export class PermissionDescriptor {
-  @Field(() => String)
-  name!: string
-
-  @Field(() => Permission)
-  value!: Permission
-}
+registerEnumType(EntityName, {name: 'EntityName'})
 
 @ObjectType()
 export class EntityPermissions {
-  @Field(() => String)
-  name!: string
+  @Field(() => EntityName)
+  name!: EntityName
 
-  @Field(() => [PermissionDescriptor])
-  permissions!: PermissionDescriptor[]
+  @Field(() => [Permission])
+  permissions!: Permission[]
 }
 
 @ObjectType()
