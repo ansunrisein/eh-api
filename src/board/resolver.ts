@@ -1,4 +1,4 @@
-import {Args, ID, Mutation, Parent, Query, ResolveField, Resolver} from '@nestjs/graphql'
+import {Args, ID, Int, Mutation, Parent, Query, ResolveField, Resolver} from '@nestjs/graphql'
 import {forwardRef, Inject, UseGuards, UseInterceptors} from '@nestjs/common'
 import {ObjectId} from 'mongodb'
 import {ParseObjectID} from '../shared/pipes'
@@ -34,6 +34,7 @@ import {InjectLinkToken} from '../auth/@InjectLinkToken'
 import {AuthGuard} from '../auth/AuthGuard'
 import {BoardTag} from '../board-tag/model'
 import {BoardTagService} from '../board-tag/service'
+import {BoardViewService} from '../board-view/service'
 
 @Resolver(() => Board)
 export class BoardResolver {
@@ -54,6 +55,9 @@ export class BoardResolver {
 
   @Inject(forwardRef(() => SubService))
   private subService!: SubService
+
+  @Inject(forwardRef(() => BoardViewService))
+  private boardViewService!: BoardViewService
 
   @ResolveField('events', () => EventConnection)
   @UseInterceptors(ConnectionInterceptor)
@@ -112,12 +116,24 @@ export class BoardResolver {
     return this.boardService.getBoardPermissions(board, user, linkToken)
   }
 
-  @Query(() => Board)
+  @ResolveField('views', () => Int)
+  views(@Parent() board: Board) {
+    return this.boardViewService.countViewsByBoardId(board._id)
+  }
+
+  @Query(() => Board, {nullable: true})
   @UseGuards(BoardGuard.for(BoardPermission.VIEW_BOARD))
-  board(
+  async board(
+    @InjectUser() user: User | undefined,
     @Args('boardId', {type: () => ID}, ParseObjectID) boardId: ObjectId,
   ): Promise<Board | undefined> {
-    return this.boardService.board(boardId)
+    const board = await this.boardService.board(boardId)
+
+    if (board && user) {
+      await this.boardViewService.trackBoardView(board, user._id)
+    }
+
+    return board
   }
 
   @Query(() => BoardConnection)

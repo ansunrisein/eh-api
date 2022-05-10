@@ -165,3 +165,45 @@ export const makeSortByNearestEventPipeline = ({sort = 'none'}: {sort?: Sort}) =
     },
   ]
 }
+
+export const makeSortByViews = ({sort = 'none'}: {sort?: Sort}) => {
+  const views = mapSortStateToState(sort)
+
+  if (!views) {
+    return []
+  }
+
+  return [
+    {
+      $lookup: {
+        from: 'board-views',
+        as: 'views',
+        let: {
+          boardId: '$_id',
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$boardId', '$$boardId'],
+              },
+            },
+          },
+          {
+            $group: {
+              _id: '$boardId',
+              count: {
+                $sum: '$count',
+              },
+            },
+          },
+        ],
+      },
+    },
+    {
+      $sort: {
+        'views.0.count': views,
+      },
+    },
+  ]
+}

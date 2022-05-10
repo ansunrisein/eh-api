@@ -23,6 +23,7 @@ import {
   makeSortByIsFavoritePipeline,
   makeSortByIsPinPipeline,
   makeSortByNearestEventPipeline,
+  makeSortByViews,
 } from './board-sorts'
 import {
   makeFilterByIsFavoritePipeline,
@@ -127,7 +128,7 @@ export class BoardService {
     sort?: BoardsSort,
     filter?: BoardsFilter,
     search?: BoardsSearch,
-  ): Promise<Board[] | undefined> {
+  ): Promise<Board[]> {
     return this.boardRepository
       .aggregate<Board>([
         ...makeSearchPipeline({text: search?.text}),
@@ -191,6 +192,7 @@ export class BoardService {
               ...makeSortByIsFavoritePipeline({userId: user._id, sort: sort?.favorite}),
               ...makeSortByIsPinPipeline({userId: user._id, sort: sort?.pin}),
               ...makeSortByNearestEventPipeline({sort: sort?.nearestEvent}),
+              ...makeSortByViews({sort: sort?.views}),
             ]
           : [
               {

@@ -69,6 +69,9 @@ export class Board extends BaseEntity {
   @Field(() => [BoardTag], {nullable: true})
   tags?: BoardTag[]
 
+  @Field(() => Int)
+  views?: number
+
   _cursor?: BoardCursor
 }
 
@@ -178,6 +181,9 @@ export class BoardsSort {
 
   @Field(() => String, {nullable: true})
   pin?: Sort
+
+  @Field(() => String, {nullable: true})
+  views?: Sort
 }
 
 @InputType()

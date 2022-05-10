@@ -9,6 +9,7 @@ import {BoardGuard} from './guards'
 import {BoardLinkModule} from '../board-link/module'
 import {SubModule} from '../sub/module'
 import {BoardTagModule} from '../board-tag/module'
+import {BoardViewModule} from '../board-view/module'
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import {BoardTagModule} from '../board-tag/module'
     forwardRef(() => BoardLinkModule),
     forwardRef(() => BoardTagModule),
     forwardRef(() => SubModule),
+    forwardRef(() => BoardViewModule),
     UserModule,
   ],
   providers: [BoardResolver, BoardService, BoardGuard],
