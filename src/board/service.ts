@@ -122,6 +122,28 @@ export class BoardService {
         )
   }
 
+  async popular(
+    user: User | undefined,
+    {first, after}: Page,
+    filter?: BoardsFilter,
+  ): Promise<Board[]> {
+    return this.boardRepository
+      .aggregate<Board>([
+        {
+          $match: {
+            isPrivate: false,
+          },
+        },
+        ...makeFilterByIsFavoritePipeline({userId: user?._id, filter: filter?.favorite}),
+        ...makeSortByViews({sort: 'desc'}),
+        ...makePaginationPipeline({sort: {views: 'desc'}, after}),
+        {
+          $limit: first,
+        },
+      ])
+      .toArray()
+  }
+
   async dashboard(
     user: User | undefined,
     {first, after}: Page,

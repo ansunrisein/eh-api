@@ -138,6 +138,16 @@ export class BoardResolver {
 
   @Query(() => BoardConnection)
   @UseInterceptors(ConnectionInterceptor)
+  popularBoards(
+    @InjectUser() user: User | undefined,
+    @Args('page') page: Page,
+    @Args('filter', {nullable: true}) filter?: BoardsFilter,
+  ) {
+    return this.boardService.popular(user, page, filter)
+  }
+
+  @Query(() => BoardConnection)
+  @UseInterceptors(ConnectionInterceptor)
   dashboard(
     @InjectUser() user: User | undefined,
     @Args('page') page: Page,
