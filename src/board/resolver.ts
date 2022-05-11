@@ -142,7 +142,7 @@ export class BoardResolver {
     @InjectUser() user: User | undefined,
     @Args('page') page: Page,
     @Args('filter', {nullable: true}) filter?: BoardsFilter,
-  ) {
+  ): Promise<Board[]> {
     return this.boardService.popular(user, page, filter)
   }
 
@@ -154,7 +154,7 @@ export class BoardResolver {
     @Args('sort', {nullable: true}) sort?: BoardsSort,
     @Args('filter', {nullable: true}) filter?: BoardsFilter,
     @Args('search', {nullable: true}) search?: BoardsSearch,
-  ): Promise<Board[] | undefined> {
+  ): Promise<Board[]> {
     return this.boardService.dashboard(user, page, sort, filter, search)
   }
 
