@@ -15,6 +15,7 @@ export type BoardCursor = {
   favorite?: boolean
   pin?: boolean
   nearestEvent?: Date
+  views?: number
 }
 
 @ObjectType()

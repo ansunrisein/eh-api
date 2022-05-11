@@ -15,18 +15,9 @@ export const makePaginationPipeline = ({
   sort?: BoardsSort
   after: Page['after']
 }) => {
-  if (!after) {
-    return []
-  }
+  const cursor = parseJson(after || '000000000000')
 
-  const cursor = parseJson(after)
-
-  if (
-    sort?.nearestEvent &&
-    sort?.nearestEvent !== 'none' &&
-    typeof cursor !== 'string' &&
-    cursor.nearestEvent
-  ) {
+  if (sort?.nearestEvent && sort?.nearestEvent !== 'none') {
     const addFields = {
       $addFields: {
         _cursor: {
@@ -34,6 +25,10 @@ export const makePaginationPipeline = ({
           nearestEvent: '$events.0.deadline',
         },
       },
+    }
+
+    if (typeof cursor === 'string' || !cursor.nearestEvent) {
+      return [addFields]
     }
 
     if (sort.nearestEvent === 'asc') {
@@ -46,10 +41,10 @@ export const makePaginationPipeline = ({
               {
                 $and: [
                   {'_cursor.nearestEvent': new Date(cursor.nearestEvent)},
-                  {_id: {$gt: new ObjectId(cursor._id)}},
+                  {_id: {$lt: new ObjectId(cursor._id)}},
                 ],
               },
-              {$and: [{'_cursor.nearestEvent': null}, {_id: {$gt: new ObjectId(cursor._id)}}]},
+              {$and: [{'_cursor.nearestEvent': null}, {_id: {$lt: new ObjectId(cursor._id)}}]},
             ],
           },
         },
@@ -66,10 +61,10 @@ export const makePaginationPipeline = ({
               {
                 $and: [
                   {'_cursor.nearestEvent': new Date(cursor.nearestEvent)},
-                  {_id: {$lt: new ObjectId(cursor._id)}},
+                  {_id: {$gt: new ObjectId(cursor._id)}},
                 ],
               },
-              {$and: [{'_cursor.nearestEvent': null}, {_id: {$lt: new ObjectId(cursor._id)}}]},
+              {$and: [{'_cursor.nearestEvent': null}, {_id: {$gt: new ObjectId(cursor._id)}}]},
             ],
           },
         },
@@ -77,7 +72,7 @@ export const makePaginationPipeline = ({
     }
   }
 
-  if (sort?.pin && sort?.pin !== 'none' && typeof cursor !== 'string' && cursor.pin) {
+  if (sort?.pin && sort?.pin !== 'none') {
     const addFields = {
       $addFields: {
         _cursor: {
@@ -87,6 +82,10 @@ export const makePaginationPipeline = ({
       },
     }
 
+    if (typeof cursor === 'string' || cursor.pin === undefined) {
+      return [addFields]
+    }
+
     if (sort.pin === 'asc') {
       return [
         addFields,
@@ -94,10 +93,8 @@ export const makePaginationPipeline = ({
           $match: {
             $or: [
               {'_cursor.pin': {$gt: cursor.pin}},
-              {
-                $and: [{'_cursor.pin': cursor.pin}, {_id: {$gt: new ObjectId(cursor._id)}}],
-              },
-              {$and: [{'_cursor.pin': null}, {_id: {$gt: new ObjectId(cursor._id)}}]},
+              {$and: [{'_cursor.pin': cursor.pin}, {_id: {$lt: new ObjectId(cursor._id)}}]},
+              {$and: [{'_cursor.pin': null}, {_id: {$lt: new ObjectId(cursor._id)}}]},
             ],
           },
         },
@@ -111,10 +108,8 @@ export const makePaginationPipeline = ({
           $match: {
             $or: [
               {'_cursor.pin': {$lt: cursor.pin}},
-              {
-                $and: [{'_cursor.pin': cursor.pin}, {_id: {$lt: new ObjectId(cursor._id)}}],
-              },
-              {$and: [{'_cursor.pin': null}, {_id: {$lt: new ObjectId(cursor._id)}}]},
+              {$and: [{'_cursor.pin': cursor.pin}, {_id: {$gt: new ObjectId(cursor._id)}}]},
+              {$and: [{'_cursor.pin': null}, {_id: {$gt: new ObjectId(cursor._id)}}]},
             ],
           },
         },
@@ -122,12 +117,7 @@ export const makePaginationPipeline = ({
     }
   }
 
-  if (
-    sort?.favorite &&
-    sort?.favorite !== 'none' &&
-    typeof cursor !== 'string' &&
-    cursor.favorite
-  ) {
+  if (sort?.favorite && sort?.favorite !== 'none') {
     const addFields = {
       $addFields: {
         _cursor: {
@@ -135,6 +125,10 @@ export const makePaginationPipeline = ({
           favorite: '$isFavorite',
         },
       },
+    }
+
+    if (typeof cursor === 'string' || cursor.favorite === undefined) {
+      return [addFields]
     }
 
     if (sort.favorite === 'asc') {
@@ -147,10 +141,10 @@ export const makePaginationPipeline = ({
               {
                 $and: [
                   {'_cursor.favorite': cursor.favorite},
-                  {_id: {$gt: new ObjectId(cursor._id)}},
+                  {_id: {$lt: new ObjectId(cursor._id)}},
                 ],
               },
-              {$and: [{'_cursor.favorite': null}, {_id: {$gt: new ObjectId(cursor._id)}}]},
+              {$and: [{'_cursor.favorite': null}, {_id: {$lt: new ObjectId(cursor._id)}}]},
             ],
           },
         },
@@ -167,10 +161,53 @@ export const makePaginationPipeline = ({
               {
                 $and: [
                   {'_cursor.favorite': cursor.favorite},
-                  {_id: {$lt: new ObjectId(cursor._id)}},
+                  {_id: {$gt: new ObjectId(cursor._id)}},
                 ],
               },
-              {$and: [{'_cursor.favorite': null}, {_id: {$lt: new ObjectId(cursor._id)}}]},
+              {$and: [{'_cursor.favorite': null}, {_id: {$gt: new ObjectId(cursor._id)}}]},
+            ],
+          },
+        },
+      ]
+    }
+  }
+
+  if (sort?.views && sort?.views !== 'none') {
+    const addFields = {
+      $addFields: {
+        _cursor: {
+          _id: '$_id',
+          views: '$views',
+        },
+      },
+    }
+
+    if (typeof cursor === 'string' || cursor.views === undefined) {
+      return [addFields]
+    }
+
+    if (sort.views === 'asc') {
+      return [
+        addFields,
+        {
+          $match: {
+            $or: [
+              {'_cursor.views': {$gt: cursor.views}},
+              {$and: [{'_cursor.views': cursor.views}, {_id: {$lt: new ObjectId(cursor._id)}}]},
+            ],
+          },
+        },
+      ]
+    }
+
+    if (sort.views === 'desc') {
+      return [
+        addFields,
+        {
+          $match: {
+            $or: [
+              {'_cursor.views': {$lt: cursor.views}},
+              {$and: [{'_cursor.views': cursor.views}, {_id: {$gt: new ObjectId(cursor._id)}}]},
             ],
           },
         },

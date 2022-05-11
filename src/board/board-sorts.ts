@@ -50,6 +50,7 @@ export const makeSortByIsFavoritePipeline = ({
     {
       $sort: {
         isFavorite: favorite,
+        _id: -favorite,
       },
     },
   ]
@@ -104,6 +105,7 @@ export const makeSortByIsPinPipeline = ({
     {
       $sort: {
         isFavorite: pin,
+        _id: -pin,
       },
     },
   ]
@@ -161,6 +163,7 @@ export const makeSortByNearestEventPipeline = ({sort = 'none'}: {sort?: Sort}) =
       $sort: {
         hasEvents: -1,
         'events.0.deadline': nearestEvent,
+        _id: -nearestEvent,
       },
     },
   ]
@@ -201,8 +204,21 @@ export const makeSortByViews = ({sort = 'none'}: {sort?: Sort}) => {
       },
     },
     {
+      $addFields: {
+        views: {
+          $first: '$views',
+        },
+      },
+    },
+    {
+      $addFields: {
+        views: {$ifNull: ['$views.count', 0]},
+      },
+    },
+    {
       $sort: {
-        'views.0.count': views,
+        views,
+        _id: -views,
       },
     },
   ]
