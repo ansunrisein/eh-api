@@ -26,7 +26,8 @@ export class BoardViewService {
     if (BoardViewService.canTrackView(view)) {
       await this.boardViewRepository.updateOne(
         {boardId: board._id, userId},
-        {count: view.count + 1},
+        {$set: {count: view.count + 1}},
+        {upsert: true},
       )
 
       return true
