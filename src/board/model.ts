@@ -73,6 +73,9 @@ export class Board extends BaseEntity {
   @Field(() => Int)
   views?: number
 
+  @Field(() => Boolean)
+  participationSuggestion!: boolean
+
   _cursor?: BoardCursor
 }
 

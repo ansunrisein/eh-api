@@ -10,6 +10,7 @@ import {BoardLinkModule} from '../board-link/module'
 import {SubModule} from '../sub/module'
 import {BoardTagModule} from '../board-tag/module'
 import {BoardViewModule} from '../board-view/module'
+import {BoardParticipantModule} from '../board-participant/module'
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import {BoardViewModule} from '../board-view/module'
     forwardRef(() => BoardTagModule),
     forwardRef(() => SubModule),
     forwardRef(() => BoardViewModule),
+    forwardRef(() => BoardParticipantModule),
     UserModule,
   ],
   providers: [BoardResolver, BoardService, BoardGuard],

@@ -4,7 +4,7 @@ import {ObjectId} from 'mongodb'
 import {ParseObjectID} from '../shared/pipes'
 import {InjectUser} from '../auth/@InjectUser'
 import {User} from '../user/model'
-import {EventConnection, EventsSort, EventsFilter} from '../event/model'
+import {EventConnection, EventsFilter, EventsSort} from '../event/model'
 import {UserService} from '../user/service'
 import {BoardLinkConnection, Permission} from '../board-link/model'
 import {BoardLinkService} from '../board-link/service'
@@ -119,6 +119,15 @@ export class BoardResolver {
   @ResolveField('views', () => Int)
   views(@Parent() board: Board) {
     return this.boardViewService.countViewsByBoardId(board._id)
+  }
+
+  @ResolveField('participationSuggestion', () => Boolean)
+  async participationSuggestion(
+    @InjectUser() user: User | undefined,
+    @InjectLinkToken() linkToken: string | undefined,
+    @Parent() board: Board,
+  ) {
+    return this.boardService.participationSuggestion(board._id, user?._id, linkToken)
   }
 
   @Query(() => Board, {nullable: true})

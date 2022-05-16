@@ -32,6 +32,7 @@ import {
 } from './board-filter'
 import {makePaginationPipeline} from './board-cursor'
 import {makeSearchPipeline} from './board-search'
+import {BoardParticipantService} from '../board-participant/service'
 
 @Injectable()
 export class BoardService {
@@ -46,6 +47,9 @@ export class BoardService {
 
   @Inject(forwardRef(() => BoardLinkService))
   private boardLinkService!: BoardLinkService
+
+  @Inject(forwardRef(() => BoardParticipantService))
+  private boardParticipantService!: BoardParticipantService
 
   static extractBoardId(context: ExecutionContext): ObjectId | undefined {
     const args = context.getArgByIndex(1)
@@ -120,6 +124,38 @@ export class BoardService {
       : link.permissions.filter(perm =>
           [Permission.VIEW_BOARD, Permission.VIEW_EVENT, Permission.VIEW_BOARD_LINK].includes(perm),
         )
+  }
+
+  async participationSuggestion(
+    boardId: ObjectId,
+    userId: ObjectId | undefined,
+    linkToken: string | undefined,
+  ) {
+    if (!userId || !linkToken) {
+      return false
+    }
+
+    const board = await this.board(boardId)
+
+    if (!board || board.userId.equals(userId)) {
+      return false
+    }
+
+    const isParticipant = await this.boardParticipantService.isParticipant(userId, boardId)
+
+    if (isParticipant) {
+      return false
+    }
+
+    const link = await this.boardLinkService.getBoardLinkByLink(linkToken)
+
+    if (!link?.suggestParticipation) {
+      return false
+    }
+
+    const isDeclined = await this.boardParticipantService.isSuggestionDeclined(userId, link._id)
+
+    return !isDeclined
   }
 
   async popular(
