@@ -6,9 +6,15 @@ import {UserModule} from '../user/module'
 import {BoardLinkResolver} from './resolver'
 import {BoardLinkService} from './service'
 import {BoardLinkGuard} from './guards'
+import {BoardParticipantModule} from '../board-participant/module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BoardLink]), forwardRef(() => BoardModule), UserModule],
+  imports: [
+    TypeOrmModule.forFeature([BoardLink]),
+    forwardRef(() => BoardModule),
+    forwardRef(() => BoardParticipantModule),
+    UserModule,
+  ],
   providers: [BoardLinkResolver, BoardLinkService, BoardLinkGuard],
   exports: [BoardLinkService],
 })

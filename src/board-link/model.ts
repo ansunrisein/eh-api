@@ -62,6 +62,10 @@ export class BoardLink extends BaseEntity {
   @Column()
   permissions!: Permission[]
 
+  @Field(() => Boolean)
+  @Column()
+  suggestParticipation!: boolean
+
   @Column()
   boardId!: ObjectId
 
@@ -94,6 +98,9 @@ export class CreateBoardLink {
 
   @Field(() => [Permission])
   permissions!: Permission[]
+
+  @Field(() => Boolean)
+  suggestParticipation!: boolean
 }
 
 @InputType()
