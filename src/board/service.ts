@@ -180,6 +180,75 @@ export class BoardService {
       .toArray()
   }
 
+  async boards(
+    user: User | undefined,
+    {first, after}: Page,
+    sort?: BoardsSort,
+    filter?: BoardsFilter,
+    search?: BoardsSearch,
+  ) {
+    return this.boardRepository
+      .aggregate<Board>([
+        ...makeSearchPipeline({text: search?.text}),
+        ...(user
+          ? [
+              {
+                $lookup: {
+                  from: 'subs',
+                  as: 'subs',
+                  let: {
+                    boardId: '$_id',
+                    userId: '$userId',
+                  },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $or: [
+                            {
+                              $and: [
+                                {$eq: ['$$boardId', '$boardId']},
+                                {$eq: ['$userId', user._id]},
+                              ],
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                $addFields: {
+                  isSub: {$ne: ['$subs', []]},
+                  isMyBoard: {$eq: ['$userId', user._id]},
+                },
+              },
+              {
+                $match: {$or: [{isPrivate: false}, {isMyBoard: true}, {isSub: true}]},
+              },
+            ]
+          : [
+              {
+                $match: {isPrivate: false},
+              },
+            ]),
+        ...(user
+          ? [
+              ...makeFilterByIsFavoritePipeline({userId: user._id, filter: filter?.favorite}),
+              ...makeSortByIsFavoritePipeline({userId: user._id, sort: sort?.favorite}),
+            ]
+          : []),
+        ...makeSortByNearestEventPipeline({sort: sort?.nearestEvent}),
+        ...makeSortByViews({sort: sort?.views}),
+        ...makePaginationPipeline({sort, after}),
+        {
+          $limit: first,
+        },
+      ])
+      .toArray()
+  }
+
   async dashboard(
     user: User | undefined,
     {first, after}: Page,

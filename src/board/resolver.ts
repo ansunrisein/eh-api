@@ -147,6 +147,18 @@ export class BoardResolver {
 
   @Query(() => BoardConnection)
   @UseInterceptors(ConnectionInterceptor)
+  boards(
+    @InjectUser() user: User | undefined,
+    @Args('page') page: Page,
+    @Args('sort', {nullable: true}) sort?: BoardsSort,
+    @Args('filter', {nullable: true}) filter?: BoardsFilter,
+    @Args('search', {nullable: true}) search?: BoardsSearch,
+  ): Promise<Board[]> {
+    return this.boardService.boards(user, page, sort, filter, search)
+  }
+
+  @Query(() => BoardConnection)
+  @UseInterceptors(ConnectionInterceptor)
   popularBoards(
     @InjectUser() user: User | undefined,
     @Args('page') page: Page,
