@@ -1,0 +1,3 @@
+export enum BoardParticipantPermission {
+  ACCEPT_OR_DECLINE_PARTICIPATION = 'ACCEPT_OR_DECLINE_PARTICIPATION',
+}

@@ -30,12 +30,8 @@ export class BoardParticipantService {
 
   async acceptSuggestion(
     userId: ObjectId,
-    linkToken: string | undefined,
+    linkToken: string,
   ): Promise<BoardParticipant | undefined> {
-    if (!linkToken) {
-      return undefined
-    }
-
     const link = await this.boardLinkService.getBoardLinkByLink(linkToken)
 
     if (!link) {
@@ -51,12 +47,8 @@ export class BoardParticipantService {
 
   async declineSuggestion(
     userId: ObjectId,
-    linkToken: string | undefined,
+    linkToken: string,
   ): Promise<BoardParticipationDecline | undefined> {
-    if (!linkToken) {
-      return undefined
-    }
-
     const link = await this.boardLinkService.getBoardLinkByLink(linkToken)
 
     if (!link) {

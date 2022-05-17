@@ -149,7 +149,7 @@ export class BoardService {
 
     const link = await this.boardLinkService.getBoardLinkByLink(linkToken)
 
-    if (!link?.suggestParticipation) {
+    if (!link?.allowParticipation) {
       return false
     }
 
@@ -204,14 +204,7 @@ export class BoardService {
                     {
                       $match: {
                         $expr: {
-                          $or: [
-                            {
-                              $and: [
-                                {$eq: ['$$boardId', '$boardId']},
-                                {$eq: ['$userId', user._id]},
-                              ],
-                            },
-                          ],
+                          $and: [{$eq: ['$$boardId', '$boardId']}, {$eq: ['$userId', user._id]}],
                         },
                       },
                     },
