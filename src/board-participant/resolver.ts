@@ -1,19 +1,27 @@
-import {Mutation, Resolver} from '@nestjs/graphql'
+import {Mutation, Parent, ResolveField, Resolver} from '@nestjs/graphql'
 import {forwardRef, Inject, UseGuards} from '@nestjs/common'
-import {BoardLink} from '../board-link/model'
 import {AuthGuard} from '../auth/AuthGuard'
 import {InjectLinkToken} from '../auth/@InjectLinkToken'
 import {InjectUser} from '../auth/@InjectUser'
+import {UserService} from '../user/service'
 import {User} from '../user/model'
 import {BoardParticipant, BoardParticipationDecline} from './model'
 import {BoardParticipantService} from './service'
 import {BoardParticipantGuard} from './guards'
 import {BoardParticipantPermission} from './permissions'
 
-@Resolver(() => BoardLink)
+@Resolver(() => BoardParticipant)
 export class BoardParticipantResolver {
   @Inject(forwardRef(() => BoardParticipantService))
   private boardParticipantService!: BoardParticipantService
+
+  @Inject(forwardRef(() => UserService))
+  private userService!: UserService
+
+  @ResolveField('user', () => User)
+  user(@Parent() boardParticipant: BoardParticipant) {
+    return this.userService.getUserById(boardParticipant.userId)
+  }
 
   @Mutation(() => BoardParticipant, {nullable: true})
   @UseGuards(

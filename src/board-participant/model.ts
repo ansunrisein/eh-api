@@ -1,5 +1,6 @@
 import {BaseEntity, Column, Entity, ObjectIdColumn} from 'typeorm'
 import {ObjectId} from 'mongodb'
+import {User} from '../user/model'
 import {Permission} from '../board-link/model'
 import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
 import {Connection} from '../pagination/model'
@@ -23,6 +24,9 @@ export class BoardParticipant extends BaseEntity {
   @Field(() => [Permission])
   @Column({nullable: true})
   permissions?: Permission[]
+
+  @Field(() => User)
+  user!: User
 }
 
 @ObjectType()
