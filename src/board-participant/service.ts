@@ -82,4 +82,14 @@ export class BoardParticipantService {
       linkId: link._id,
     })
   }
+
+  async removeParticipantsByIds(boardId: ObjectId, ids: ObjectId[]) {
+    const participants = await this.boardParticipantRepository.findByIds(ids)
+
+    await this.boardParticipantRepository.deleteMany({
+      _id: {$in: ids},
+    })
+
+    return participants
+  }
 }

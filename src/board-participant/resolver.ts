@@ -1,11 +1,12 @@
-import {Mutation, Parent, ResolveField, Resolver} from '@nestjs/graphql'
+import {Args, Mutation, Parent, ResolveField, Resolver} from '@nestjs/graphql'
 import {forwardRef, Inject, UseGuards} from '@nestjs/common'
+import {ParseObjectID} from '../shared/pipes'
 import {AuthGuard} from '../auth/AuthGuard'
 import {InjectLinkToken} from '../auth/@InjectLinkToken'
 import {InjectUser} from '../auth/@InjectUser'
 import {UserService} from '../user/service'
 import {User} from '../user/model'
-import {BoardParticipant, BoardParticipationDecline} from './model'
+import {BoardParticipant, BoardParticipationDecline, RemoveBoardParticipants} from './model'
 import {BoardParticipantService} from './service'
 import {BoardParticipantGuard} from './guards'
 import {BoardParticipantPermission} from './permissions'
@@ -45,5 +46,19 @@ export class BoardParticipantResolver {
     @InjectLinkToken() linkToken: string,
   ): Promise<BoardParticipationDecline | undefined> {
     return this.boardParticipantService.declineSuggestion(user._id, linkToken)
+  }
+
+  @Mutation(() => [BoardParticipant])
+  @UseGuards(AuthGuard)
+  removeBoardParticipants(
+    @InjectUser() user: User,
+    @Args(
+      'board',
+      {type: () => RemoveBoardParticipants},
+      ParseObjectID.for(['_id', 'participantsId']),
+    )
+    board: RemoveBoardParticipants,
+  ): Promise<BoardParticipant[]> {
+    return this.boardParticipantService.removeParticipantsByIds(board._id, board.participantsId)
   }
 }
