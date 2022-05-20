@@ -138,7 +138,7 @@ export class BoardResolver {
     @InjectLinkToken() linkToken: string | undefined,
     @Parent() board: Board,
   ) {
-    return this.boardService.participationSuggestion(board._id, user?._id, linkToken)
+    return this.boardService.getParticipationSuggestion(board._id, user?._id, linkToken)
   }
 
   @Query(() => Board, {nullable: true})

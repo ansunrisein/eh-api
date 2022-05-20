@@ -126,11 +126,11 @@ export class BoardService {
         )
   }
 
-  async participationSuggestion(
+  async getParticipationSuggestion(
     boardId: ObjectId,
     userId: ObjectId | undefined,
     linkToken: string | undefined,
-  ) {
+  ): Promise<boolean> {
     if (!userId || !linkToken) {
       return false
     }
