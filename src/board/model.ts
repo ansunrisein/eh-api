@@ -9,6 +9,7 @@ import {Connection} from '../pagination/model'
 import {BoardFilter} from './board-filter'
 import {Sort} from '../shared/sort'
 import {BoardTag} from '../board-tag/model'
+import {BoardParticipantConnection} from '../board-participant/model'
 
 export type BoardCursor = {
   _id: string
@@ -72,6 +73,9 @@ export class Board extends BaseEntity {
 
   @Field(() => Int)
   views?: number
+
+  @Field(() => BoardParticipantConnection)
+  participants?: BoardParticipantConnection
 
   @Field(() => Boolean)
   participationSuggestion!: boolean

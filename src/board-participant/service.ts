@@ -4,6 +4,7 @@ import {getRepositoryToken} from '@nestjs/typeorm'
 import {ObjectId} from 'mongodb'
 import {BoardLinkService} from '../board-link/service'
 import {BoardParticipant, BoardParticipationDecline} from './model'
+import {Page} from '../pagination/model'
 
 @Injectable()
 export class BoardParticipantService {
@@ -16,16 +17,37 @@ export class BoardParticipantService {
   @Inject(forwardRef(() => BoardLinkService))
   private boardLinkService!: BoardLinkService
 
-  async getBoardParticipants(boardId: ObjectId): Promise<BoardParticipant[]> {
-    return this.boardParticipantRepository.find({boardId})
-  }
-
   async isParticipant(userId: ObjectId, boardId: ObjectId): Promise<boolean> {
     return this.boardParticipantRepository.findOne({userId, boardId}).then(Boolean)
   }
 
   async isSuggestionDeclined(userId: ObjectId, linkId: ObjectId): Promise<boolean> {
     return this.boardParticipationDeclinesRepository.findOne({userId, linkId}).then(Boolean)
+  }
+
+  async getBoardParticipants(
+    boardId: ObjectId,
+    {first, after = '000000000000'}: Page,
+  ): Promise<BoardParticipant[]> {
+    return this.boardParticipantRepository
+      .aggregate<BoardParticipant>([
+        {
+          $match: {
+            boardId,
+          },
+        },
+        {
+          $match: {
+            _id: {
+              $gt: new ObjectId(after),
+            },
+          },
+        },
+        {
+          $limit: first,
+        },
+      ])
+      .toArray()
   }
 
   async acceptSuggestion(

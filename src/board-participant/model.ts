@@ -1,7 +1,8 @@
 import {BaseEntity, Column, Entity, ObjectIdColumn} from 'typeorm'
 import {ObjectId} from 'mongodb'
 import {Permission} from '../board-link/model'
-import {Field, ID, ObjectType} from '@nestjs/graphql'
+import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
+import {Connection} from '../pagination/model'
 
 @ObjectType()
 @Entity({name: 'board-participants'})
@@ -36,4 +37,28 @@ export class BoardParticipationDecline extends BaseEntity {
 
   @Column()
   linkId!: ObjectId
+}
+
+@ObjectType()
+export class BoardParticipantEdge {
+  @Field(() => String)
+  cursor!: string
+
+  @Field(() => BoardParticipant)
+  node!: BoardParticipant
+}
+
+@ObjectType()
+export class BoardParticipantConnection extends Connection<BoardParticipant> {
+  @Field(() => [BoardParticipantEdge])
+  edges!: BoardParticipantEdge[]
+}
+
+@InputType()
+export class RemoveBoardParticipants {
+  @Field(() => ID)
+  _id!: ObjectId
+
+  @Field(() => [ID])
+  participantsId!: ObjectId[]
 }

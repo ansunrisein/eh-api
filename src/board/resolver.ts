@@ -35,6 +35,8 @@ import {AuthGuard} from '../auth/AuthGuard'
 import {BoardTag} from '../board-tag/model'
 import {BoardTagService} from '../board-tag/service'
 import {BoardViewService} from '../board-view/service'
+import {BoardParticipantService} from '../board-participant/service'
+import {BoardParticipantConnection} from '../board-participant/model'
 
 @Resolver(() => Board)
 export class BoardResolver {
@@ -58,6 +60,9 @@ export class BoardResolver {
 
   @Inject(forwardRef(() => BoardViewService))
   private boardViewService!: BoardViewService
+
+  @Inject(forwardRef(() => BoardParticipantService))
+  private boardParticipantService!: BoardParticipantService
 
   @ResolveField('events', () => EventConnection)
   @UseInterceptors(ConnectionInterceptor)
@@ -119,6 +124,12 @@ export class BoardResolver {
   @ResolveField('views', () => Int)
   views(@Parent() board: Board) {
     return this.boardViewService.countViewsByBoardId(board._id)
+  }
+
+  @ResolveField('participants', () => BoardParticipantConnection)
+  @UseInterceptors(ConnectionInterceptor)
+  participants(@Parent() board: Board, @Args('page') page: Page) {
+    return this.boardParticipantService.getBoardParticipants(board._id, page)
   }
 
   @ResolveField('participationSuggestion', () => Boolean)
