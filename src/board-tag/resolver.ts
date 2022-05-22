@@ -1,8 +1,9 @@
 import {Args, Mutation, Query, Resolver} from '@nestjs/graphql'
-import {forwardRef, Inject} from '@nestjs/common'
+import {forwardRef, Inject, UseGuards} from '@nestjs/common'
 import {BoardTagService} from './service'
 import {BoardTag, BoardTagId, CreateBoardTag} from './model'
 import {ParseObjectID} from '../shared/pipes'
+import {BoardTagGuard} from './guards'
 
 @Resolver(() => BoardTag)
 export class BoardTagResolver {
@@ -15,6 +16,7 @@ export class BoardTagResolver {
   }
 
   @Mutation(() => BoardTag)
+  @UseGuards(BoardTagGuard)
   createBoardTag(
     @Args('boardTag', {type: () => CreateBoardTag}) boardTag: CreateBoardTag,
   ): Promise<BoardTag> {
@@ -22,6 +24,7 @@ export class BoardTagResolver {
   }
 
   @Mutation(() => BoardTag)
+  @UseGuards(BoardTagGuard)
   removeBoardTag(
     @Args('boardTag', {type: () => BoardTagId}, ParseObjectID.for(['_id'])) boardTag: BoardTagId,
   ): Promise<BoardTag | undefined> {
