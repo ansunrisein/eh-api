@@ -80,6 +80,11 @@ export class BoardResolver {
     return this.eventService.countEventsByBoardId(board._id)
   }
 
+  @ResolveField('timeExpiredEventsCount', () => Number)
+  timeExpiredEventsCount(@Parent() board: Board) {
+    return this.eventService.countTimeExpiredEventsByBoardId(board._id)
+  }
+
   @ResolveField('isFavorite', () => Boolean)
   isFavorite(@InjectUser() user: User | undefined, @Parent() board: Board) {
     return this.boardService.isFavoriteBoard(board, user)

@@ -58,6 +58,22 @@ export class EventService {
     return this.eventRepository.count({boardId})
   }
 
+  async countTimeExpiredEventsByBoardId(boardId: ObjectId): Promise<number> {
+    return this.eventRepository.count({
+      boardId,
+      deadline: {$lt: new Date()},
+    })
+  }
+
+  async getTimeExpiredEventsByBoardId(boardId: ObjectId): Promise<Event[] | undefined> {
+    return this.eventRepository.find({
+      where: {
+        boardId,
+        deadline: {$lt: new Date()},
+      },
+    })
+  }
+
   async createEvent(user: User, event: CreateEvent): Promise<Event | undefined> {
     return this.eventRepository.save({...event, userId: user._id})
   }

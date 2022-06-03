@@ -22,6 +22,14 @@ export class EventResolver {
     return this.eventService.getById(eventId)
   }
 
+  @Query(() => [Event], {nullable: true})
+  @UseGuards(EventGuard.for(EventPermission.VIEW_EVENT))
+  timeExpiredEvents(
+    @Args('boardId', {type: () => ID}, ParseObjectID) boardId: ObjectId,
+  ): Promise<Event[] | undefined> {
+    return this.eventService.getTimeExpiredEventsByBoardId(boardId)
+  }
+
   @Mutation(() => Event, {nullable: true})
   @UseGuards(EventGuard.for(EventPermission.CREATE_EVENT))
   createEvent(
