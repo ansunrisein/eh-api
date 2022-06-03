@@ -14,10 +14,13 @@ export class EventService {
   @Inject(forwardRef(() => getRepositoryToken(Event)))
   private eventRepository!: MongoRepository<Event>
 
-  static extractEventId(context: ExecutionContext): ObjectId | undefined {
+  static extractEventIds(context: ExecutionContext): ObjectId[] | undefined {
     const args = context.getArgByIndex(1)
+
     const id = args.event?._id || args.eventId
-    return id && new ObjectId(id)
+    const ids = args.events?.ids
+
+    return (id ? [id] : ids)?.map((id: string) => new ObjectId(id))
   }
 
   async getById(_id: ObjectId): Promise<Event | undefined> {
@@ -45,6 +48,10 @@ export class EventService {
         },
       ])
       .toArray()
+  }
+
+  async getEventsByIds(ids: ObjectId[]): Promise<Event[]> {
+    return this.eventRepository.findByIds(ids)
   }
 
   async countEventsByBoardId(boardId: ObjectId): Promise<number> {

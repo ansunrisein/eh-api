@@ -21,13 +21,13 @@ export class EventGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const userId = AuthService.extractUserId(context)
-    const eventId = EventService.extractEventId(context)
+    const eventIds = EventService.extractEventIds(context)
     const boardId = BoardService.extractBoardId(context)
     const linkToken = BoardLinkService.extractLinkToken(context)
 
     return boardId
       ? this.hasPermissionForBoard({boardId, userId, linkToken})
-      : this.hasPermissionForEvent({eventId, userId, linkToken})
+      : this.hasPermissionForEvent({eventIds, userId, linkToken})
   }
 
   public async hasPermissionForBoard({
@@ -81,12 +81,12 @@ export class EventGuard implements CanActivate {
   }
 
   public async hasPermissionForEvent({
-    eventId,
+    eventIds,
     userId,
     linkToken,
     permission = this.permission,
   }: {
-    eventId?: ObjectId
+    eventIds?: ObjectId[]
     userId?: ObjectId
     linkToken?: string
     permission?: EventPermission
@@ -99,17 +99,25 @@ export class EventGuard implements CanActivate {
       return false
     }
 
-    if (!eventId) {
+    if (!eventIds?.length) {
       return false
     }
 
-    const event = await this.eventService.getById(eventId)
+    const events = await this.eventService.getEventsByIds(eventIds)
 
-    if (!event) {
+    if (!events.length) {
       return false
     }
 
-    return this.hasPermissionForBoard({boardId: event.boardId, userId, linkToken})
+    const boardIds = events
+      .map(e => e.boardId)
+      .filter((id, index, ids) => ids.slice(index + 1).every(e => !e.equals(id)))
+
+    if (boardIds.length !== 1) {
+      return false
+    }
+
+    return this.hasPermissionForBoard({boardId: boardIds[0], userId, linkToken})
   }
 
   static for(permission: EventPermission) {
