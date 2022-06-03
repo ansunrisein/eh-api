@@ -4,7 +4,7 @@ import {ObjectId} from 'mongodb'
 import {ParseObjectID} from '../shared/pipes'
 import {InjectUser} from '../auth/@InjectUser'
 import {User} from '../user/model'
-import {CreateEvent, Event, UpdateEvent} from './model'
+import {CreateEvent, Event, RemoveEvents, UpdateEvent} from './model'
 import {EventService} from './service'
 import {EventGuard} from './guards'
 import {EventPermission} from './permissions'
@@ -53,5 +53,13 @@ export class EventResolver {
     @Args('eventId', {type: () => ID}, ParseObjectID) eventId: ObjectId,
   ): Promise<Event | undefined> {
     return this.eventService.removeEvent(eventId)
+  }
+
+  @Mutation(() => [Event], {nullable: true})
+  @UseGuards(EventGuard.for(EventPermission.REMOVE_EVENT))
+  removeEventsByIds(
+    @Args('events', {type: () => RemoveEvents}, ParseObjectID.for('ids')) events: RemoveEvents,
+  ): Promise<Event[] | undefined> {
+    return this.eventService.removeEventsByIds(events.ids)
   }
 }

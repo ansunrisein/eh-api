@@ -95,4 +95,14 @@ export class EventService {
     await this.eventRepository.deleteOne({_id})
     return event
   }
+
+  async removeEventsByIds(ids: ObjectId[]): Promise<Event[] | undefined> {
+    const events = await this.eventRepository.findByIds(ids)
+
+    await this.eventRepository.deleteMany({
+      _id: {$in: ids},
+    })
+
+    return events
+  }
 }

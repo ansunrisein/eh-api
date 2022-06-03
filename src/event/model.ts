@@ -105,3 +105,9 @@ export class EventsFilter {
   @Field(() => Int, {nullable: true})
   expired?: EventFilter
 }
+
+@InputType()
+export class RemoveEvents {
+  @Field(() => [ID])
+  ids!: ObjectId[]
+}
