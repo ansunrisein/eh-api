@@ -242,6 +242,41 @@ export class BoardService {
       .toArray()
   }
 
+  async my(user: User, {first, after}: Page, search?: BoardsSearch) {
+    return await this.boardRepository
+      .aggregate<Board>([
+        ...makeSearchPipeline({text: search?.text}),
+        {
+          $lookup: {
+            let: {
+              boardId: '$_id',
+              userId: user._id,
+            },
+            from: 'board-participants',
+            as: 'participation',
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [{$eq: ['$$boardId', '$boardId']}, {$eq: ['$$userId', '$userId']}],
+                  },
+                },
+              },
+              {$limit: 1},
+            ],
+          },
+        },
+        {
+          $match: {
+            participation: {$ne: []},
+          },
+        },
+        ...makePaginationPipeline({after}),
+        {$limit: first},
+      ])
+      .toArray()
+  }
+
   async dashboard(
     user: User | undefined,
     {first, after}: Page,

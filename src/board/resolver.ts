@@ -195,6 +195,17 @@ export class BoardResolver {
     return this.boardService.dashboard(user, page, sort, filter, search)
   }
 
+  @Query(() => BoardConnection)
+  @UseInterceptors(ConnectionInterceptor)
+  @UseGuards(AuthGuard)
+  my(
+    @InjectUser() user: User,
+    @Args('page') page: Page,
+    @Args('search', {nullable: true}) search?: BoardsSearch,
+  ): Promise<Board[]> {
+    return this.boardService.my(user, page, search)
+  }
+
   @Mutation(() => Board)
   @UseGuards(BoardGuard.for(BoardPermission.CREATE_BOARD))
   createBoard(
