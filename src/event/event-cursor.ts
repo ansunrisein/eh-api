@@ -21,12 +21,7 @@ export const makePaginationPipeline = ({
 
   const cursor = parseJson(after)
 
-  if (
-    sort?.nearestEvent &&
-    sort?.nearestEvent !== 'none' &&
-    typeof cursor !== 'string' &&
-    cursor.deadline
-  ) {
+  if (sort?.nearest && sort?.nearest !== 'none' && typeof cursor !== 'string' && cursor.deadline) {
     const addFields = {
       $addFields: {
         _cursor: {
@@ -36,7 +31,7 @@ export const makePaginationPipeline = ({
       },
     }
 
-    if (sort.nearestEvent === 'asc') {
+    if (sort.nearest === 'asc') {
       return [
         {
           $match: {
@@ -56,7 +51,7 @@ export const makePaginationPipeline = ({
       ]
     }
 
-    if (sort.nearestEvent === 'desc') {
+    if (sort.nearest === 'desc') {
       return [
         {
           $match: {

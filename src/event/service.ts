@@ -40,7 +40,7 @@ export class EventService {
             boardId,
           },
         },
-        ...makeSortByDeadlinePipeline({sort: sort?.nearestEvent}),
+        ...makeSortByDeadlinePipeline({sort: sort?.nearest}),
         ...makeFilterByExpiredPipeline({filter: filter?.expired}),
         ...makePaginationPipeline({sort, after}),
         {

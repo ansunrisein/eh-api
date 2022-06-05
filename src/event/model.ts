@@ -94,7 +94,7 @@ export class UpdateEvent extends BaseEntity {
 @InputType()
 export class EventsSort {
   @Field(() => String, {nullable: true})
-  nearestEvent?: Sort
+  nearest?: Sort
 
   @Field(() => String, {nullable: true})
   pin?: Sort
