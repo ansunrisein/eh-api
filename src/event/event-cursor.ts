@@ -15,13 +15,9 @@ export const makePaginationPipeline = ({
   sort?: EventsSort
   after: Page['after']
 }) => {
-  if (!after) {
-    return []
-  }
+  const cursor = parseJson(after || '000000000000')
 
-  const cursor = parseJson(after)
-
-  if (sort?.nearest && sort?.nearest !== 'none' && typeof cursor !== 'string' && cursor.deadline) {
+  if (sort?.nearest && sort?.nearest !== 'none') {
     const addFields = {
       $addFields: {
         _cursor: {
@@ -29,6 +25,10 @@ export const makePaginationPipeline = ({
           deadline: '$deadline',
         },
       },
+    }
+
+    if (typeof cursor === 'string' || !cursor.deadline) {
+      return [addFields]
     }
 
     if (sort.nearest === 'asc') {
@@ -40,10 +40,10 @@ export const makePaginationPipeline = ({
               {
                 $and: [
                   {deadline: new Date(cursor.deadline)},
-                  {_id: {$gt: new ObjectId(cursor._id)}},
+                  {_id: {$lt: new ObjectId(cursor._id)}},
                 ],
               },
-              {$and: [{deadline: null}, {_id: {$gt: new ObjectId(cursor._id)}}]},
+              {$and: [{deadline: null}, {_id: {$lt: new ObjectId(cursor._id)}}]},
             ],
           },
         },
@@ -60,10 +60,10 @@ export const makePaginationPipeline = ({
               {
                 $and: [
                   {deadline: new Date(cursor.deadline)},
-                  {_id: {$lt: new ObjectId(cursor._id)}},
+                  {_id: {$gt: new ObjectId(cursor._id)}},
                 ],
               },
-              {$and: [{deadline: null}, {_id: {$lt: new ObjectId(cursor._id)}}]},
+              {$and: [{deadline: null}, {_id: {$gt: new ObjectId(cursor._id)}}]},
             ],
           },
         },

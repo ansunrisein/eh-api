@@ -19,6 +19,7 @@ export const makeSortByDeadlinePipeline = ({sort = 'none'}: {sort?: Sort}) => {
       $sort: {
         hasDeadline: -1,
         deadline,
+        _id: -deadline,
       },
     },
   ]
