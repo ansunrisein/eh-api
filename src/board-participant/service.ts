@@ -83,7 +83,7 @@ export class BoardParticipantService {
     })
   }
 
-  async removeParticipantsByIds(boardId: ObjectId, ids: ObjectId[]) {
+  async removeParticipantsByIds(boardId: ObjectId, ids: ObjectId[]): Promise<BoardParticipant[]> {
     const participants = await this.boardParticipantRepository.findByIds(ids)
 
     await this.boardParticipantRepository.deleteMany({
@@ -91,5 +91,13 @@ export class BoardParticipantService {
     })
 
     return participants
+  }
+
+  async leaveBoard(boardId: ObjectId, userId: ObjectId): Promise<BoardParticipant | undefined> {
+    const participant = await this.boardParticipantRepository.findOne({boardId, userId})
+
+    await this.boardParticipantRepository.deleteOne({_id: participant?._id})
+
+    return participant
   }
 }

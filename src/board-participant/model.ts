@@ -4,6 +4,7 @@ import {User} from '../user/model'
 import {Permission} from '../board-link/model'
 import {Field, ID, InputType, ObjectType} from '@nestjs/graphql'
 import {Connection} from '../pagination/model'
+import {Board} from '../board/model'
 
 @ObjectType()
 @Entity({name: 'board-participants'})
@@ -27,6 +28,9 @@ export class BoardParticipant extends BaseEntity {
 
   @Field(() => User)
   user!: User
+
+  @Field(() => Board)
+  board!: Board
 }
 
 @ObjectType()

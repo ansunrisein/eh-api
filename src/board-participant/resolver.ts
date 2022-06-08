@@ -1,4 +1,4 @@
-import {Args, Mutation, Parent, ResolveField, Resolver} from '@nestjs/graphql'
+import {Args, ID, Mutation, Parent, ResolveField, Resolver} from '@nestjs/graphql'
 import {forwardRef, Inject, UseGuards} from '@nestjs/common'
 import {ParseObjectID} from '../shared/pipes'
 import {AuthGuard} from '../auth/AuthGuard'
@@ -10,6 +10,9 @@ import {BoardParticipant, BoardParticipationDecline, RemoveBoardParticipants} fr
 import {BoardParticipantService} from './service'
 import {BoardParticipantGuard} from './guards'
 import {BoardParticipantPermission} from './permissions'
+import {Board} from '../board/model'
+import {ObjectId} from 'mongodb'
+import {BoardService} from '../board/service'
 
 @Resolver(() => BoardParticipant)
 export class BoardParticipantResolver {
@@ -19,9 +22,17 @@ export class BoardParticipantResolver {
   @Inject(forwardRef(() => UserService))
   private userService!: UserService
 
+  @Inject(forwardRef(() => BoardService))
+  private boardService!: BoardService
+
   @ResolveField('user', () => User)
   user(@Parent() boardParticipant: BoardParticipant) {
     return this.userService.getUserById(boardParticipant.userId)
+  }
+
+  @ResolveField('board', () => Board)
+  board(@Parent() boardParticipant: BoardParticipant) {
+    return this.boardService.board(boardParticipant.boardId)
   }
 
   @Mutation(() => BoardParticipant, {nullable: true})
@@ -60,5 +71,14 @@ export class BoardParticipantResolver {
     board: RemoveBoardParticipants,
   ): Promise<BoardParticipant[]> {
     return this.boardParticipantService.removeParticipantsByIds(board._id, board.participantsId)
+  }
+
+  @Mutation(() => BoardParticipant)
+  @UseGuards(AuthGuard)
+  leaveBoard(
+    @InjectUser() user: User,
+    @Args('boardId', {type: () => ID}, ParseObjectID) boardId: ObjectId,
+  ): Promise<BoardParticipant | undefined> {
+    return this.boardParticipantService.leaveBoard(boardId, user._id)
   }
 }
